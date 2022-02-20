@@ -1,8 +1,9 @@
-import { Field, InterfaceType } from 'type-graphql';
-import FieldError from '../FieldError';
+import { ClassType, Field, InterfaceType, ObjectType } from 'type-graphql';
+import { User } from '../../Models';
+import FieldError from './FieldError';
 
 @InterfaceType()
-export default abstract class MutationResponse {
+abstract class IMutationResponse {
     @Field()
     code!: number;
 
@@ -14,4 +15,32 @@ export default abstract class MutationResponse {
 
     @Field((_return) => [FieldError], { nullable: true })
     errors?: FieldError[];
+}
+
+function MutationResponse<T extends ClassType>(ModelClass: T) {
+    const className = ModelClass.name;
+
+    @ObjectType(`${className}MutationResponse`, {
+        implements: IMutationResponse,
+    })
+    class ModelMutationResponse implements IMutationResponse {
+        code: number;
+        success: boolean;
+        message: string;
+        errors?: FieldError[] | undefined;
+
+        @Field(() => ModelClass, {
+            name: `${className.toLocaleLowerCase()}`,
+            nullable: true,
+        })
+        result?: any;
+    }
+
+    return ModelMutationResponse;
+}
+
+@ObjectType()
+export class UserMutationResponse extends MutationResponse(User){
+    @Field({nullable: true})
+    token?: string;
 }

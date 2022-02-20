@@ -1,5 +1,4 @@
-import RegisterInput from '../Types/InputType/RegisterInput';
-import UserMutationResponse from '../Types/Mutation/UserMutationResponse';
+import { RegisterInput, UserMutationResponse } from '../Types';
 
 export const ValidateRegister = (registerInput: RegisterInput): UserMutationResponse | null => {
     const { username, email, password } = registerInput;

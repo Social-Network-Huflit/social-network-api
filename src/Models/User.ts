@@ -17,9 +17,9 @@ export class User extends TimeStamps{
     email!: string;
 
     @prop()
+    @Field()
     name!: string;
 
-    @Field()
     @prop()
     password!: string;
 
