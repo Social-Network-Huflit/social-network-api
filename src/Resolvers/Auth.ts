@@ -1,7 +1,7 @@
 import md5 from "md5";
 import { Arg, Mutation, Resolver } from "type-graphql";
 import Logger from "../Configs/Logger";
-import User from "../Entities/User";
+import {User, UserSchema} from "../Models/User";
 import RegisterInput from "../Types/InputType/RegisterInput";
 import UserMutationResponse from "../Types/Mutation/UserMutationResponse";
 import { ValidateRegister } from "../Utils/Validation";
@@ -23,9 +23,11 @@ export default class AuthResolver {
         }
 
         try {
-            const existingUser = await User.findOne({
-                where: [{ username }, { email }],
+            const existingUser = await UserSchema.findOne({
+                $or: [{ username }, { email }],
             });
+
+            console.log(existingUser)
 
             if (existingUser) {
                 return {
@@ -43,16 +45,18 @@ export default class AuthResolver {
 
             const hashPassword = md5(password);
 
-            const newUser = User.create({
+            const newUser = await UserSchema.create({
                 ...registerInput,
                 password: hashPassword,
             });
+
+            console.log(newUser)
 
             return {
                 code: 201,
                 success: true,
                 message: 'Register successfully',
-                user: await User.save(newUser),
+                user: newUser,
             };
         } catch (error: any) {
             Logger.error(error.message);
