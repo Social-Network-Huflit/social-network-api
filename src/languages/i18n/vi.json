@@ -1,0 +1,18 @@
+{
+    "BAD_REQUEST": "",
+    "AUTH": {
+        "REGISTER": {
+            "DUPLICATE": "",
+            "EXIST": "",
+            "SUCCESS": ""
+        },
+        "LOGIN": {
+            "INVALID": {
+                "INDEX": "",
+                "USERNAME_EMAIL": "",
+                "PASSWORD": ""
+            },
+            "SUCCESS": ""
+        }
+    }
+}

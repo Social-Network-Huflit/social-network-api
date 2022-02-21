@@ -3,7 +3,7 @@ import { User } from '../../Models';
 import FieldError from './FieldError';
 
 @InterfaceType()
-abstract class IMutationResponse {
+export abstract class IMutationResponse {
     @Field()
     code!: number;
 

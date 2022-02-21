@@ -1,57 +1,23 @@
-import { RegisterInput, UserMutationResponse } from '../Types';
+import { Validator } from 'class-validator-multi-lang';
+import { IMutationResponse, Request } from '../Types';
+import MapErrorValidator from './MapFieldError';
 
-export const ValidateRegister = (registerInput: RegisterInput): UserMutationResponse | null => {
-    const { username, email, password } = registerInput;
+export default async function ValidateModel(
+    req: Request,
+    input: any
+): Promise<IMutationResponse | null> {
+    const validation = await new Validator().validate(input, {
+        messages: req.locale,
+    });
 
-    //username
-    if (username.length < 6){
+    if (validation.length > 0) {
         return {
             code: 400,
+            message: 'Bad Request',
             success: false,
-            message: 'Invalid username',
-            errors: [{
-                field: 'username',
-                message: 'Username length must at least 6 characters'
-            }]
-        }
-    }
-    if (username.includes('@')){
-        return {
-            code: 400,
-            success: false,
-            message: 'Invalid username',
-            errors: [{
-                field: 'username',
-                message: 'Username can not include @ symbol'
-            }]
-        }
-    }
-    
-    //email
-    if (!email.includes('@')){
-        return {
-            code: 400,
-            success: false,
-            message: 'Invalid email',
-            errors: [{
-                field: 'email',
-                message: 'Email must include @ symbol'
-            }]
-        }
-    }
-    
-    //password
-    if (password.length < 6){
-        return {
-            code: 400,
-            success: false,
-            message: 'Invalid password',
-            errors: [{
-                field: 'password',
-                message: 'Password length must at least 6 characters'
-            }]
-        }
+            errors: MapErrorValidator(validation),
+        };
     }
 
     return null;
-};
+}
