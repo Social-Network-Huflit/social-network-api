@@ -29,8 +29,10 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "mongoose": "^6.2.2",
+    "mysql2": "^2.3.3",
     "reflect-metadata": "^0.1.13",
-    "type-graphql": "^1.1.1"
+    "type-graphql": "^1.1.1",
+    "typeorm": "^0.2.44"
   },
   "devDependencies": {
     "@types/express-session": "^1.17.4",

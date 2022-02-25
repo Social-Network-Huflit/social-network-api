@@ -2,7 +2,7 @@ import { Validator } from 'class-validator-multi-lang';
 import { IMutationResponse, Request } from '../Types';
 import MapErrorValidator from './MapFieldError';
 
-export default async function ValidateModel(
+export default async function ValidateInput(
     req: Request,
     input: any
 ): Promise<IMutationResponse | null> {

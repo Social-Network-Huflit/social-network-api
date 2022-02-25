@@ -5,7 +5,10 @@ declare global {
         PORT: string;
         MONGO_DB_URL?: string;
         SESSION_SECRET?: string;
-        JWT_SECRET?: string;
+        TYPEORM_USERNAME?: string;
+        TYPEORM_PASSWORD?: string;
+        TYPEORM_DATABASE?: string;
+        TYPEORM_URL?: string;
       }
     }
   }
