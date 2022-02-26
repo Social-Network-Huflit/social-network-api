@@ -3,26 +3,29 @@ import {
     BaseEntity,
     CreateDateColumn,
     Entity,
+    JoinColumn,
     ManyToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
 import { Post, User } from '..';
 
-@Entity()
+@Entity({ name: 'post_like' })
 @ObjectType()
 export default class PostLike extends BaseEntity {
     @Field(() => ID)
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Post, post => post.likes)
+    @ManyToOne(() => Post, (post) => post.likes)
     @Field(() => Post)
-    post: Post
+    @JoinColumn({ name: 'post_id' })
+    post: Post;
 
-    @ManyToOne(() => User, user => user.likes)
+    @ManyToOne(() => User, (user) => user.likes)
     @Field(() => User)
-    user: User;
+    @JoinColumn({ name: 'user_id' })
+    owner: User;
 
     @Field()
     @CreateDateColumn()

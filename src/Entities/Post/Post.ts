@@ -4,14 +4,15 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinColumn,
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { PostLike, User } from '..';
+import { PostLike, User, PostComment } from '..';
 
-@Entity()
+@Entity({ name: 'post' })
 @ObjectType()
 export default class Post extends BaseEntity {
     @PrimaryGeneratedColumn()
@@ -36,11 +37,16 @@ export default class Post extends BaseEntity {
 
     @Field(() => User)
     @ManyToOne(() => User, (user) => user.posts)
+    @JoinColumn({ name: 'user_id' })
     owner: User;
 
     @Field(() => [PostLike])
     @OneToMany(() => PostLike, (postLike) => postLike.post)
     likes: PostLike[];
+
+    @Field(() => [PostComment])
+    @OneToMany(() => PostComment, (post_comment) => post_comment.post)
+    comments: PostComment[];
 
     @Field()
     @CreateDateColumn()
