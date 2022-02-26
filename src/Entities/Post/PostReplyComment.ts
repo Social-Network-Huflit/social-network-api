@@ -41,7 +41,7 @@ export default class PostReplyComment extends BaseEntity {
     likes: PostReplyCommentLike[];
 
     @Field()
-    @Column()
+    @Column({default: true})
     active: boolean;
 
     @Field()

@@ -32,7 +32,7 @@ export default class PostShareComment extends BaseEntity{
     reply_comments: PostShareReplyComment[]
 
     @Field()
-    @Column()
+    @Column({default: true})
     active: boolean;
 
     @CreateDateColumn()

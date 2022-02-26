@@ -43,7 +43,7 @@ export default class PostComment extends BaseEntity {
     reply_comments: PostReplyComment[];
 
     @Field()
-    @Column()
+    @Column({default: true})
     active: boolean;
 
     @Field()

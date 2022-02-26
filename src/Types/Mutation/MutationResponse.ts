@@ -1,8 +1,8 @@
-import { User } from '@Entities';
+import { Post, User } from '@Entities';
 import { FieldError } from '@Types';
 import { ClassType, Field, InterfaceType, ObjectType } from 'type-graphql';
 
-@InterfaceType()
+@ObjectType()
 export abstract class IMutationResponse {
     @Field()
     code!: number;
@@ -20,10 +20,8 @@ export abstract class IMutationResponse {
 function MutationResponse<T extends ClassType>(ModelClass: T) {
     const className = ModelClass.name;
 
-    @ObjectType(`${className}MutationResponse`, {
-        implements: IMutationResponse,
-    })
-    class ModelMutationResponse implements IMutationResponse {
+    @ObjectType(`${className}MutationResponse`)
+    class ModelMutationResponse extends IMutationResponse {
         code: number;
         success: boolean;
         message: string;
@@ -40,7 +38,7 @@ function MutationResponse<T extends ClassType>(ModelClass: T) {
 }
 
 @ObjectType()
-export class UserMutationResponse extends MutationResponse(User){
-    @Field({nullable: true})
-    token?: string;
-}
+export class UserMutationResponse extends MutationResponse(User) {}
+
+@ObjectType()
+export class PostMutationResponse extends MutationResponse(Post) {}

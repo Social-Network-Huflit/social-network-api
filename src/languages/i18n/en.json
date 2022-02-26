@@ -1,6 +1,7 @@
 {
     "BAD_REQUEST": "Bad Request",
     "AUTH": {
+        "FIND_USER_FAIL": "Can not find user",
         "REGISTER": {
             "DUPLICATE": "Duplicate username or email",
             "EXIST": "already taken",
@@ -14,5 +15,13 @@
             },
             "SUCCESS": "Logged in successfully"
         }
+    },
+    "POST": {
+        "CREATE_POST_SUCCESS": "Create post successfully",
+        "UPDATE_POST_SUCCESS": "Update post successfully",
+        "DELETE_POST_SUCCESS": "Delete post successfully",
+        "FIND_POST_FAIL": "Can not find post",
+        "LIKE_POST_SUCCESS": "Like post successfully",
+        "UNLIKE_POST_SUCCESS": "Unlike post successfully"
     }
 }

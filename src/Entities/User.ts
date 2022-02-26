@@ -23,6 +23,9 @@ import {
     PostShareReplyCommentLike,
 } from '@Entities';
 import { DEFAULT_AVATAR } from '@Constants/index';
+import { Request } from '@Types';
+import { AuthenticationError } from 'apollo-server-core';
+import i18n from 'i18n';
 
 @ObjectType()
 @Entity({ name: 'user' })
@@ -106,7 +109,7 @@ export default class User extends BaseEntity {
     likes_reply_comment_post_share: PostShareReplyCommentLike[];
 
     @Field()
-    @Column()
+    @Column({default: true})
     active: boolean;
 
     @Field()
@@ -116,4 +119,17 @@ export default class User extends BaseEntity {
     @Field()
     @UpdateDateColumn()
     updatedAt: Date;
+
+    public static async getMyUser(req: Request): Promise<User> {
+        const user = await User.findOne({
+            id: req.session.userId,
+            active: true,
+        });
+
+        if (!user) {
+            throw new AuthenticationError(i18n.__('AUTH.FIND_USER_FAIL'));
+        }
+
+        return user;
+    }
 }

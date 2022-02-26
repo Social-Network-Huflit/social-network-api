@@ -32,9 +32,9 @@ export default class PostShare extends BaseEntity{
     likes: PostShareLike[]
 
     @Field()
-    @Column()
+    @Column({default: true})
     active: boolean;
-
+    
     @CreateDateColumn()
     @Field()
     createdAt: Date;

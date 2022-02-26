@@ -27,7 +27,7 @@ export default class PostShareReplyComment extends BaseEntity{
     likes: PostShareReplyCommentLike[]
 
     @Field()
-    @Column()
+    @Column({default: true})
     active: boolean;
 
     @CreateDateColumn()

@@ -53,7 +53,7 @@ export default class Post extends BaseEntity {
     shares: PostShare[]
 
     @Field()
-    @Column()
+    @Column({default: true})
     active: boolean;
 
     @Field()

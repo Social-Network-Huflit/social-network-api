@@ -4,6 +4,7 @@ export {default as FieldError} from './Mutation/FieldError';
 
 //Input Type
 export * from './InputType/AuthInput'
+export * from './InputType/PostInput'
 
 //Errors
 export {default as ServerInternal} from './Errors/ServerInternal'
