@@ -1,23 +1,14 @@
+import {Logger} from '@Configs';
+import { COOKIES_NAME } from '@Constants/index';
+import { User } from '@Entities';
+import { Context, LoginInput, RegisterInput, ServerInternal, UserMutationResponse } from '@Types';
+import ValidateInput from '@Utils/Validation';
 import argon2 from 'argon2';
 import i18n from 'i18n';
-import { Arg, Ctx, Mutation, Query, Resolver, UseMiddleware } from 'type-graphql';
-import Logger from '../Configs/Logger';
-import { COOKIES_NAME } from '../Constants';
-import { Authentication } from '../Middlewares/Auth.middleware';
-import { User } from '../Entities';
-import { Context, LoginInput, RegisterInput, ServerInternal, UserMutationResponse } from '../Types';
-import ValidateInput from '../Utils/Validation';
+import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
 
 @Resolver()
 export default class AuthResolver {
-    //Get My user
-    @UseMiddleware(Authentication)
-    @Query(() => User, { nullable: true })
-    async getMyUser(@Ctx() { req }: Context): Promise<User | null | undefined> {
-        const user = await User.findOne(req.session.userId);
-        return user;
-    }
-
     //Register
     @Mutation((_return) => UserMutationResponse)
     async register(
@@ -34,7 +25,10 @@ export default class AuthResolver {
             }
 
             const existingUser = await User.findOne({
-                where: [{ username }, { email }],
+                where: [
+                    { username, active: true },
+                    { email, active: true },
+                ],
             });
 
             if (existingUser) {
@@ -87,7 +81,10 @@ export default class AuthResolver {
             }
 
             const existingUser = await User.findOne({
-                where: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+                where: [
+                    { username: usernameOrEmail, active: true },
+                    { email: usernameOrEmail, active: true },
+                ],
             });
 
             if (!existingUser || !(await argon2.verify(existingUser.password, password))) {
