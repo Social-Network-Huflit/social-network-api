@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Post, PostShareComment, PostShareLike, User } from "..";
+import { Post, PostShareComment, PostShareLike, User } from "@Entities";
 
 @Entity({name: "post_share"})
 @ObjectType()
@@ -30,6 +30,10 @@ export default class PostShare extends BaseEntity{
     @Field(() => [PostShareLike])
     @OneToMany(() => PostShareLike, likes => likes.post_share)
     likes: PostShareLike[]
+
+    @Field()
+    @Column()
+    active: boolean;
 
     @CreateDateColumn()
     @Field()

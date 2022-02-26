@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from "type-graphql";
 import { BaseEntity, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { PostComment, User } from "..";
+import { PostComment, User } from "@Entities";
 
 @Entity({ name: "post_comment_like" })
 @ObjectType()

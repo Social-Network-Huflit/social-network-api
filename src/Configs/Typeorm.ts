@@ -1,6 +1,6 @@
+import { __prod__ } from '@Constants/index';
+import { entities } from '@Entities';
 import { createConnection } from 'typeorm';
-import { __prod__ } from '../Constants';
-import { entities } from '../Entities';
 
 export default async function connectTypeorm() {
     await createConnection({

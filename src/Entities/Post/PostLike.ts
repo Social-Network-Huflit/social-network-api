@@ -8,7 +8,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { Post, User } from '..';
+import { Post, User } from '@Entities';
 
 @Entity({ name: 'post_like' })
 @ObjectType()

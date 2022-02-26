@@ -8,7 +8,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { PostReplyComment, User } from '..';
+import { PostReplyComment, User } from '@Entities';
 
 @Entity({ name: 'post_reply_comment_like' })
 @ObjectType()

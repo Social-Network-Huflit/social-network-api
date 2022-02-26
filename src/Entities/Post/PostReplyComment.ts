@@ -10,7 +10,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { PostComment, PostReplyCommentLike, User } from '..';
+import { PostComment, PostReplyCommentLike, User } from '@Entities';
 
 @Entity({ name: 'post_reply_comment' })
 @ObjectType()
@@ -39,6 +39,10 @@ export default class PostReplyComment extends BaseEntity {
         (post_reply_comment_like) => post_reply_comment_like.reply_comment
     )
     likes: PostReplyCommentLike[];
+
+    @Field()
+    @Column()
+    active: boolean;
 
     @Field()
     @CreateDateColumn()

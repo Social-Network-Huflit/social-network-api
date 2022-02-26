@@ -1,6 +1,6 @@
+import { User } from '@Entities';
+import { FieldError } from '@Types';
 import { ClassType, Field, InterfaceType, ObjectType } from 'type-graphql';
-import { User } from '../../Entities';
-import FieldError from './FieldError';
 
 @InterfaceType()
 export abstract class IMutationResponse {

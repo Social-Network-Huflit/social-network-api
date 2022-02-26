@@ -10,7 +10,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { PostLike, User, PostComment, PostShare } from '..';
+import { PostLike, User, PostComment, PostShare } from '@Entities';
 
 @Entity({ name: 'post' })
 @ObjectType()
@@ -51,6 +51,10 @@ export default class Post extends BaseEntity {
     @Field(() => [PostShare])
     @OneToMany(() => PostShare, post_share => post_share.post)
     shares: PostShare[]
+
+    @Field()
+    @Column()
+    active: boolean;
 
     @Field()
     @CreateDateColumn()

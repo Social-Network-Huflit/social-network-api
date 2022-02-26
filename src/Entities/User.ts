@@ -8,8 +8,21 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { Post, PostComment, PostCommentLike, PostLike, PostReplyComment, PostReplyCommentLike, PostShare, PostShareComment, PostShareCommentLike, PostShareLike, PostShareReplyComment, PostShareReplyCommentLike } from '.';
-import { DEFAULT_AVATAR } from '../Constants/index';
+import {
+    Post,
+    PostComment,
+    PostCommentLike,
+    PostLike,
+    PostReplyComment,
+    PostReplyCommentLike,
+    PostShare,
+    PostShareComment,
+    PostShareCommentLike,
+    PostShareLike,
+    PostShareReplyComment,
+    PostShareReplyCommentLike,
+} from '@Entities';
+import { DEFAULT_AVATAR } from '@Constants/index';
 
 @ObjectType()
 @Entity({ name: 'user' })
@@ -38,10 +51,6 @@ export default class User extends BaseEntity {
     phoneNumber: string;
 
     @Field()
-    @Column({ default: true })
-    isActive: boolean;
-
-    @Field()
     @Column({ default: DEFAULT_AVATAR })
     avatar: string;
 
@@ -66,7 +75,10 @@ export default class User extends BaseEntity {
     reply_comments_post: PostReplyComment[];
 
     @Field(() => [PostReplyCommentLike])
-    @OneToMany(() => PostReplyCommentLike, (post_reply_comment_like) => post_reply_comment_like.owner)
+    @OneToMany(
+        () => PostReplyCommentLike,
+        (post_reply_comment_like) => post_reply_comment_like.owner
+    )
     likes_reply_comment_post: PostReplyCommentLike[];
 
     @Field(() => [PostShare])
@@ -92,6 +104,10 @@ export default class User extends BaseEntity {
     @Field(() => [PostShareReplyCommentLike])
     @OneToMany(() => PostShareReplyCommentLike, (like) => like.owner)
     likes_reply_comment_post_share: PostShareReplyCommentLike[];
+
+    @Field()
+    @Column()
+    active: boolean;
 
     @Field()
     @CreateDateColumn()

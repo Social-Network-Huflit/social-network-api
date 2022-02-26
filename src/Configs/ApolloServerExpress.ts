@@ -1,10 +1,10 @@
+import LocaleMiddleware from '@Middlewares/Locale.middleware';
+import resolvers from '@Resolvers';
+import { Context } from '@Types';
 import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-express';
 import { Express } from 'express';
 import { buildSchema } from 'type-graphql';
-import LocaleMiddleware from '../Middlewares/Locale.middleware';
-import resolvers from '../Resolvers';
-import { Context } from '../Types';
 
 export default async function ApolloServerExpress(app: Express){
     const apolloServer = new ApolloServer({

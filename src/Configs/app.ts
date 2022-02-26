@@ -1,7 +1,8 @@
+import { __prod__ } from '@Constants/index';
+import { COOKIES_NAME } from '@Constants/index';
 import MongoStore from 'connect-mongo';
 import express from 'express';
 import session from 'express-session';
-import { COOKIES_NAME, __prod__ } from '../Constants';
 import i18n from 'i18n';
 import path from 'path';
 

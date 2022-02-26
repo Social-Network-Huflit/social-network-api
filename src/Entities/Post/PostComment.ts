@@ -11,7 +11,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { User, Post, PostCommentLike, PostReplyComment } from '..';
+import { User, Post, PostCommentLike, PostReplyComment } from '@Entities';
 
 @Entity({ name: 'post_comment' })
 @ObjectType()
@@ -41,6 +41,10 @@ export default class PostComment extends BaseEntity {
     @Field(() => [PostReplyComment])
     @OneToMany(() => PostReplyComment, (post_reply_comment) => post_reply_comment.comment)
     reply_comments: PostReplyComment[];
+
+    @Field()
+    @Column()
+    active: boolean;
 
     @Field()
     @CreateDateColumn()

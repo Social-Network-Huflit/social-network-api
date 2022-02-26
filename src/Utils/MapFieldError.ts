@@ -1,5 +1,5 @@
+import { FieldError } from "@Types";
 import { ValidationError } from "class-validator";
-import { FieldError } from "../Types";
 
 //Custom error from class-validator
 export default function MapErrorValidator(validate: ValidationError[]): FieldError[]{
