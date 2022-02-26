@@ -1,7 +1,6 @@
 import { NonEmptyArray } from "type-graphql";
 import AuthResolver from "./Auth";
-import HelloResolver from "./Hello";
 
-const resolvers: NonEmptyArray<Function> = [AuthResolver, HelloResolver]
+const resolvers: NonEmptyArray<Function> = [AuthResolver]
 
 export default resolvers

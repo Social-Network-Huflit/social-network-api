@@ -15,7 +15,7 @@ export default class PostCommentLike extends BaseEntity{
     comment: PostComment;
 
     @Field(() => User)
-    @ManyToOne(() => User, user => user.likes_comment)
+    @ManyToOne(() => User, user => user.likes_comment_post)
         @JoinColumn({name: "user_id"})
     owner: User;
 

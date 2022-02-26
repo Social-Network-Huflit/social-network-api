@@ -8,7 +8,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { Post, PostComment, PostCommentLike, PostLike, PostReplyComment, PostReplyCommentLike } from '.';
+import { Post, PostComment, PostCommentLike, PostLike, PostReplyComment, PostReplyCommentLike, PostShare, PostShareComment, PostShareCommentLike, PostShareLike, PostShareReplyComment, PostShareReplyCommentLike } from '.';
 import { DEFAULT_AVATAR } from '../Constants/index';
 
 @ObjectType()
@@ -51,23 +51,47 @@ export default class User extends BaseEntity {
 
     @Field(() => [PostLike])
     @OneToMany(() => PostLike, (postLike) => postLike.owner)
-    likes: PostLike[];
+    likes_post: PostLike[];
 
     @Field(() => [PostComment])
     @OneToMany(() => PostComment, (post_comment) => post_comment.owner)
-    comments: PostComment[];
+    comments_post: PostComment[];
 
     @Field(() => [PostCommentLike])
     @OneToMany(() => PostCommentLike, (post_comment_like) => post_comment_like.owner)
-    likes_comment: PostCommentLike[];
+    likes_comment_post: PostCommentLike[];
 
     @Field(() => [PostReplyComment])
     @OneToMany(() => PostReplyComment, (post_reply_comment) => post_reply_comment.owner)
-    reply_comments: PostReplyComment[];
+    reply_comments_post: PostReplyComment[];
 
     @Field(() => [PostReplyCommentLike])
     @OneToMany(() => PostReplyCommentLike, (post_reply_comment_like) => post_reply_comment_like.owner)
-    reply_comment_likes: PostReplyCommentLike[];
+    likes_reply_comment_post: PostReplyCommentLike[];
+
+    @Field(() => [PostShare])
+    @OneToMany(() => PostShare, (post_share) => post_share.owner)
+    posts_share: PostShare[];
+
+    @Field(() => [PostShareComment])
+    @OneToMany(() => PostShareComment, (post_share_comment) => post_share_comment.owner)
+    comments_post_share: PostShareComment[];
+
+    @Field(() => [PostShareCommentLike])
+    @OneToMany(() => PostShareCommentLike, (like) => like.owner)
+    likes_comment_post_share: PostShareCommentLike[];
+
+    @Field(() => [PostShareLike])
+    @OneToMany(() => PostShareLike, (like) => like.owner)
+    likes_post_share: PostShareLike[];
+
+    @Field(() => [PostShareReplyComment])
+    @OneToMany(() => PostShareReplyComment, (comment) => comment.owner)
+    reply_comments_post_share: PostShareReplyComment[];
+
+    @Field(() => [PostShareReplyCommentLike])
+    @OneToMany(() => PostShareReplyCommentLike, (like) => like.owner)
+    likes_reply_comment_post_share: PostShareReplyCommentLike[];
 
     @Field()
     @CreateDateColumn()

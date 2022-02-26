@@ -25,7 +25,7 @@ export default class PostComment extends BaseEntity {
     content: string;
 
     @Field(() => User)
-    @ManyToOne(() => User, (user) => user.comments)
+    @ManyToOne(() => User, (user) => user.comments_post)
     @JoinColumn({ name: 'user_id' })
     owner: User;
 

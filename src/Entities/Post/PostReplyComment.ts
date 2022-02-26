@@ -29,7 +29,7 @@ export default class PostReplyComment extends BaseEntity {
     comment: PostComment;
 
     @Field(() => User)
-    @ManyToOne(() => User, (user) => user.reply_comments)
+    @ManyToOne(() => User, (user) => user.reply_comments_post)
     @JoinColumn({ name: 'user_id' })
     owner: User;
 

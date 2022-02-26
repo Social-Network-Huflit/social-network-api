@@ -22,7 +22,7 @@ export default class PostLike extends BaseEntity {
     @JoinColumn({ name: 'post_id' })
     post: Post;
 
-    @ManyToOne(() => User, (user) => user.likes)
+    @ManyToOne(() => User, (user) => user.likes_post)
     @Field(() => User)
     @JoinColumn({ name: 'user_id' })
     owner: User;
