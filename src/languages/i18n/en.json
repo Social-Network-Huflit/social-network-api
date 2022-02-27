@@ -22,6 +22,17 @@
         "DELETE_POST_SUCCESS": "Delete post successfully",
         "FIND_POST_FAIL": "Can not find post",
         "LIKE_POST_SUCCESS": "Like post successfully",
-        "UNLIKE_POST_SUCCESS": "Unlike post successfully"
+        "UNLIKE_POST_SUCCESS": "Unlike post successfully",
+        "COMMENT_POST_SUCCESS": "Comment post successfully",
+        "FIND_COMMENT_FAIL": "Can not find comment",
+        "UPDATE_COMMENT_SUCCESS": "Update comment successfully",
+        "DELETE_COMMENT_POST_SUCCESS":"Delete comment successfully",
+        "DELETE_COMMENT_POST_FAIL": "You do not have permission to delete this",
+        "REPLY_COMMENT_SUCCESS": "Reply comment successfully",
+        "LIKE_COMMENT_SUCCESS": "Like comment successfully",
+        "UNLIKE_COMMENT_SUCCESS": "Unlike comment successfully"
+    },
+    "POST_SHARE": {
+        "CREATE_POST_SHARE_SUCCESS": "Share post successfully"
     }
 }

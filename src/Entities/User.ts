@@ -109,7 +109,7 @@ export default class User extends BaseEntity {
     likes_reply_comment_post_share: PostShareReplyCommentLike[];
 
     @Field()
-    @Column({default: true})
+    @Column({ default: true })
     active: boolean;
 
     @Field()

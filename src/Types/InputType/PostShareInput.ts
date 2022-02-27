@@ -2,44 +2,26 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator-multi-lang';
 import { Field, InputType} from 'type-graphql';
 
 @InputType()
-export class CreatePostInput {
+export class CreatePostShareInput {
     @Field({ nullable: true })
     caption?: string;
-
-    @Field({ nullable: true })
-    image_link?: string;
-
-    @Field({ nullable: true })
-    video_link?: string;
-
-    @Field({ nullable: true })
-    youtube_link?: string;
 }
 
 @InputType()
-export class UpdatePostInput {
+export class UpdatePostShareInput {
     @Field()
     id: number;
 
     @Field({ nullable: true })
     caption?: string;
-
-    @Field({ nullable: true })
-    image_link?: string;
-
-    @Field({ nullable: true })
-    video_link?: string;
-
-    @Field({ nullable: true })
-    youtube_link?: string;
 }
 
 @InputType()
-export class CreateCommentPostInput{
+export class CreateCommentPostShareInput{
     @Field()
     @IsNumber()
     @IsNotEmpty()
-    post_id: number;
+    post_share_id: number;
 
     @Field()
     @IsString()
@@ -48,7 +30,7 @@ export class CreateCommentPostInput{
 }
 
 @InputType()
-export class UpdateCommentPostInput{
+export class UpdateCommentPostShareInput{
     @Field()
     @IsNumber()
     @IsNotEmpty()
@@ -61,11 +43,11 @@ export class UpdateCommentPostInput{
 }
 
 @InputType()
-export class DeleteCommentPostInput{
+export class DeleteCommentPostShareInput{
     @Field()
     @IsNumber()
     @IsNotEmpty()
-    post_id: number;
+    post_share_id: number;
 
     @Field()
     @IsNumber()
@@ -74,7 +56,7 @@ export class DeleteCommentPostInput{
 }
 
 @InputType()
-export class ReplyCommentPostInput{
+export class ReplyCommentPostShareInput{
     @Field()
     @IsNumber()
     @IsNotEmpty()

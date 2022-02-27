@@ -1,6 +1,6 @@
-import { Post, User } from '@Entities';
+import { Post, PostComment, PostReplyComment, PostShare, PostShareComment, User } from '@Entities';
 import { FieldError } from '@Types';
-import { ClassType, Field, InterfaceType, ObjectType } from 'type-graphql';
+import { ClassType, Field, ObjectType } from 'type-graphql';
 
 @ObjectType()
 export abstract class IMutationResponse {
@@ -17,7 +17,7 @@ export abstract class IMutationResponse {
     errors?: FieldError[];
 }
 
-function MutationResponse<T extends ClassType>(ModelClass: T) {
+function MutationResponse<T extends ClassType>(ModelClass: T, field: string) {
     const className = ModelClass.name;
 
     @ObjectType(`${className}MutationResponse`)
@@ -28,7 +28,7 @@ function MutationResponse<T extends ClassType>(ModelClass: T) {
         errors?: FieldError[] | undefined;
 
         @Field(() => ModelClass, {
-            name: `${className.toLocaleLowerCase()}`,
+            name: field,
             nullable: true,
         })
         result?: any;
@@ -38,7 +38,22 @@ function MutationResponse<T extends ClassType>(ModelClass: T) {
 }
 
 @ObjectType()
-export class UserMutationResponse extends MutationResponse(User) {}
+export class UserMutationResponse extends MutationResponse(User, "user") {}
 
 @ObjectType()
-export class PostMutationResponse extends MutationResponse(Post) {}
+export class PostMutationResponse extends MutationResponse(Post, "post") {}
+
+@ObjectType()
+export class CommentMutationResponse extends MutationResponse(PostComment, "comment"){}
+
+@ObjectType()
+export class ReplyCommentMutationResponse extends MutationResponse(PostReplyComment, "reply_comment"){}
+
+@ObjectType()
+export class PostShareMutationResponse extends MutationResponse(PostShare, "post") {}
+
+@ObjectType()
+export class CommentPostShareMutationResponse extends MutationResponse(PostShareComment, "comment"){}
+
+@ObjectType()
+export class ReplyCommentPostShareMutationResponse extends MutationResponse(PostReplyComment, "reply_comment"){}

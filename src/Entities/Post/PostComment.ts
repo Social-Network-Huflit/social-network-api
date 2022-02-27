@@ -29,10 +29,16 @@ export default class PostComment extends BaseEntity {
     @JoinColumn({ name: 'user_id' })
     owner: User;
 
+    @Column()
+    user_id: number;
+
     @Field(() => Post)
     @ManyToOne(() => Post, (post) => post.comments)
-    @JoinColumn({name: "post_id"})
+    @JoinColumn({ name: 'post_id' })
     post: Post;
+
+    @Column()
+    post_id: number;
 
     @Field(() => [PostCommentLike])
     @OneToMany(() => PostCommentLike, (post_comment_like) => post_comment_like.comment)
@@ -43,7 +49,7 @@ export default class PostComment extends BaseEntity {
     reply_comments: PostReplyComment[];
 
     @Field()
-    @Column({default: true})
+    @Column({ default: true })
     active: boolean;
 
     @Field()

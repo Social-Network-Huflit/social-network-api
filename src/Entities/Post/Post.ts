@@ -40,6 +40,9 @@ export default class Post extends BaseEntity {
     @JoinColumn({ name: 'user_id' })
     owner: User;
 
+    @Column()
+    user_id: number;
+
     @Field(() => [PostLike])
     @OneToMany(() => PostLike, (postLike) => postLike.post)
     likes: PostLike[];
@@ -49,11 +52,11 @@ export default class Post extends BaseEntity {
     comments: PostComment[];
 
     @Field(() => [PostShare])
-    @OneToMany(() => PostShare, post_share => post_share.post)
-    shares: PostShare[]
+    @OneToMany(() => PostShare, (post_share) => post_share.post)
+    shares: PostShare[];
 
     @Field()
-    @Column({default: true})
+    @Column({ default: true })
     active: boolean;
 
     @Field()

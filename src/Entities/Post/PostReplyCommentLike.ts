@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType } from 'type-graphql';
 import {
     BaseEntity,
+    Column,
     CreateDateColumn,
     Entity,
     JoinColumn,
@@ -22,10 +23,16 @@ export default class PostReplyCommentLike extends BaseEntity {
     @JoinColumn({ name: 'reply_comment_id' })
     reply_comment: PostReplyComment;
 
+    @Column()
+    reply_comment_id: number;
+
     @Field(() => User)
     @ManyToOne(() => User, (user) => user.likes_reply_comment_post)
     @JoinColumn({ name: 'user_id' })
     owner: User;
+
+    @Column()
+    user_id: number;
 
     @CreateDateColumn()
     @Field()

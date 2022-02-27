@@ -3,18 +3,24 @@ import { Post, User } from '@Entities';
 import { Authentication } from '@Middlewares/Auth.middleware';
 import {
     Context,
-    CreatePostInput,
-    UpdatePostInput,
-    PostMutationResponse,
-    ServerInternal,
+    CreatePostInput, PostMutationResponse,
+    ServerInternal, UpdatePostInput
 } from '@Types';
 import ValidateInput from '@Utils/Validation';
 import i18n from 'i18n';
-import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from 'type-graphql';
 import _ from 'lodash';
+import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
 
 @Resolver(() => Post)
 export default class PostResolver {
+    @FieldResolver(() => User, {nullable: true})
+    async owner(@Root() root: Post){
+        return await User.findOne({
+            id: root.user_id,
+            active: true
+        });
+    }
+
     //Create Post
     @UseMiddleware(Authentication)
     @Mutation(() => PostMutationResponse)

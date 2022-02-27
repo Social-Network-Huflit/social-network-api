@@ -1,10 +1,20 @@
-import { Field, ID, ObjectType } from "type-graphql";
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { PostShare, PostShareCommentLike, PostShareReplyComment, User } from "@Entities";
+import { Field, ID, ObjectType } from 'type-graphql';
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm';
+import { PostShare, PostShareCommentLike, PostShareReplyComment, User } from '@Entities';
 
-@Entity({name: "post_share_comment"})
+@Entity({ name: 'post_share_comment' })
 @ObjectType()
-export default class PostShareComment extends BaseEntity{
+export default class PostShareComment extends BaseEntity {
     @PrimaryGeneratedColumn()
     @Field(() => ID)
     id: number;
@@ -14,25 +24,31 @@ export default class PostShareComment extends BaseEntity{
     content: string;
 
     @Field(() => User)
-    @ManyToOne(() => User, user => user.comments_post_share)
-    @JoinColumn({name: "user_id"})
+    @ManyToOne(() => User, (user) => user.comments_post_share)
+    @JoinColumn({ name: 'user_id' })
     owner: User;
 
+    @Column()
+    user_id: number;
+
     @Field(() => PostShare)
-    @ManyToOne(() => PostShare, post_share => post_share.comments)
-    @JoinColumn({name: "post_share_id"})
-    post_share: PostShare
+    @ManyToOne(() => PostShare, (post_share) => post_share.comments)
+    @JoinColumn({ name: 'post_share_id' })
+    post_share: PostShare;
+
+    @Column()
+    post_share_id: number;
 
     @Field(() => [PostShareCommentLike])
-    @OneToMany(() => PostShareCommentLike, like => like.comment)
-    likes: PostShareCommentLike[]
+    @OneToMany(() => PostShareCommentLike, (like) => like.comment)
+    likes: PostShareCommentLike[];
 
     @Field(() => [PostShareReplyComment])
-    @OneToMany(() => PostShareReplyComment, comment => comment.comment)
-    reply_comments: PostShareReplyComment[]
+    @OneToMany(() => PostShareReplyComment, (comment) => comment.comment)
+    reply_comments: PostShareReplyComment[];
 
     @Field()
-    @Column({default: true})
+    @Column({ default: true })
     active: boolean;
 
     @CreateDateColumn()

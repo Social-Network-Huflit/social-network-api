@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType } from 'type-graphql';
 import {
     BaseEntity,
+    Column,
     CreateDateColumn,
     Entity,
     JoinColumn,
@@ -22,10 +23,16 @@ export default class PostLike extends BaseEntity {
     @JoinColumn({ name: 'post_id' })
     post: Post;
 
+    @Column()
+    post_id: number;
+
     @ManyToOne(() => User, (user) => user.likes_post)
     @Field(() => User)
     @JoinColumn({ name: 'user_id' })
     owner: User;
+
+    @Column()
+    user_id: number;
 
     @Field()
     @CreateDateColumn()
