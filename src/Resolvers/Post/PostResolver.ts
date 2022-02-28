@@ -1,5 +1,5 @@
 import { Logger } from '@Configs';
-import { Post, User } from '@Entities';
+import { Post, PostComment, PostLike, PostShare, User } from '@Entities';
 import { Authentication } from '@Middlewares/Auth.middleware';
 import {
     Context,
@@ -13,12 +13,39 @@ import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from
 
 @Resolver(() => Post)
 export default class PostResolver {
+    //owner
     @FieldResolver(() => User, {nullable: true})
     async owner(@Root() root: Post){
         return await User.findOne({
             id: root.user_id,
             active: true
         });
+    }
+
+    //likes
+    @FieldResolver(() => [PostLike])
+    async likes(@Root() root: Post): Promise<PostLike[]>{
+        return await PostLike.find({
+            post_id: root.id
+        })
+    }
+
+    //comments
+    @FieldResolver(() => [PostComment])
+    async comments(@Root() root: Post): Promise<PostComment[]>{
+        return await PostComment.find({
+            post_id: root.id,
+            active: true
+        })
+    };
+
+    //shares
+    @FieldResolver(() => [PostShare])
+    async shares(@Root() root: Post): Promise<PostShare[]>{
+        return await PostShare.find({
+            post_id: root.id,
+            active: true
+        })
     }
 
     //Create Post

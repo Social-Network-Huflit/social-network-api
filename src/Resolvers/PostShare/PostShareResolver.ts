@@ -1,13 +1,45 @@
-import { Logger } from "@Configs";
-import { PostShare, User } from "@Entities";
-import { Authentication } from "@Middlewares/Auth.middleware";
-import { Context, CreatePostShareInput, PostShareMutationResponse, ServerInternal, UpdatePostShareInput } from "@Types";
-import ValidateInput from "@Utils/Validation";
-import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from "type-graphql";
-import _ from 'lodash'
+import { Logger } from '@Configs';
+import { PostShare, PostShareComment, PostShareLike, User } from '@Entities';
+import { Authentication } from '@Middlewares/Auth.middleware';
+import {
+    Context,
+    CreatePostShareInput,
+    PostShareMutationResponse,
+    ServerInternal,
+    UpdatePostShareInput,
+} from '@Types';
+import ValidateInput from '@Utils/Validation';
+import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
+import _ from 'lodash';
 
-@Resolver()
-export default class PostShareResolver{
+@Resolver(() => PostShare)
+export default class PostShareResolver {
+    //owner
+    @FieldResolver(() => User, { nullable: true })
+    async owner(@Root() root: PostShare): Promise<User | null | undefined> {
+        return await User.findOne({
+            id: root.user_id,
+            active: true,
+        });
+    }
+
+    //comments
+    @FieldResolver(() => [PostShareComment])
+    async comments(@Root() root: PostShare): Promise<PostShareComment[]> {
+        return await PostShareComment.find({
+            post_share_id: root.id,
+            active: true,
+        });
+    }
+
+    //likes
+    @FieldResolver(() => [PostShareLike])
+    async likes(@Root() root: PostShare): Promise<PostShareLike[]> {
+        return await PostShareLike.find({
+            post_share_id: root.id,
+        });
+    }
+
     //Create Post Share
     @UseMiddleware(Authentication)
     @Mutation(() => PostShareMutationResponse)
@@ -56,7 +88,7 @@ export default class PostShareResolver{
             const post = await PostShare.findOne({
                 id: updatePostInput.id,
                 owner,
-                active: true
+                active: true,
             });
 
             if (!post) {
@@ -73,7 +105,7 @@ export default class PostShareResolver{
                 {
                     id: updatePostInput.id,
                     owner,
-                    active: true
+                    active: true,
                 },
                 {
                     ...updatedPost,
@@ -105,7 +137,7 @@ export default class PostShareResolver{
             const post = await PostShare.findOne({
                 id,
                 owner,
-                active: true
+                active: true,
             });
 
             if (!post) {
@@ -117,17 +149,17 @@ export default class PostShareResolver{
             }
 
             _.extend(post, {
-                active: false
+                active: false,
             });
 
             await PostShare.update(
                 {
                     id,
                     owner,
-                    active: true
+                    active: true,
                 },
                 {
-                    active: false
+                    active: false,
                 }
             );
 
