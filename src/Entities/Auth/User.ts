@@ -9,6 +9,7 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import {
+    Follow,
     Post,
     PostComment,
     PostCommentLike,
@@ -107,6 +108,14 @@ export default class User extends BaseEntity {
     @Field(() => [PostShareReplyCommentLike])
     @OneToMany(() => PostShareReplyCommentLike, (like) => like.owner)
     likes_reply_comment_post_share: PostShareReplyCommentLike[];
+
+    @Field(() => [User])
+    @OneToMany(() => Follow, (follow) => follow.followers)
+    following: User[];
+
+    @Field(() => [User])
+    @OneToMany(() => Follow, (follow) => follow.following)
+    followers: User[];
 
     @Field()
     @Column({ default: true })

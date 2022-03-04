@@ -1,4 +1,4 @@
-import { Post, PostComment, PostCommentLike, PostLike, PostReplyComment, PostReplyCommentLike, PostShare, PostShareComment, PostShareCommentLike, PostShareLike, PostShareReplyComment, PostShareReplyCommentLike, User } from '@Entities';
+import { Follow, Post, PostComment, PostCommentLike, PostLike, PostReplyComment, PostReplyCommentLike, PostShare, PostShareComment, PostShareCommentLike, PostShareLike, PostShareReplyComment, PostShareReplyCommentLike, User } from '@Entities';
 import { Authentication } from '@Middlewares/Auth.middleware';
 import { Context } from '@Types';
 import { Ctx, FieldResolver, Query, Resolver, Root, UseMiddleware } from 'type-graphql';
@@ -105,6 +105,26 @@ export default class UserResolver {
         return await PostShareReplyCommentLike.find({
             user_id: root.id
         })
+    }
+
+    //following
+    @FieldResolver(() => [User])
+    async following(@Root() root: User): Promise<User[]>{
+        const follows = await Follow.find({
+            user_1: root.id
+        })
+
+        return follows.map(follow => follow.following);
+    }
+
+    //followers
+    @FieldResolver(() => [User])
+    async followers(@Root() root: User): Promise<User[]>{
+        const follows = await Follow.find({
+            user_2: root.id
+        })
+
+        return follows.map(follow => follow.followers);
     }
 
     //Get My user

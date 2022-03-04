@@ -1,4 +1,5 @@
-import User from './User';
+import User from './Auth/User';
+import Follow from './Auth/Follow';
 
 //Post
 import Post from './Post/Post';
@@ -16,7 +17,8 @@ import PostShareLike from './PostShare/PostShareLike';
 import PostShareReplyComment from './PostShare/PostShareReplyComment';
 import PostShareReplyCommentLike from './PostShare/PostShareReplyCommentLike';
 
-export { default as User } from './User';
+export { default as User } from './Auth/User';
+export { default as Follow } from './Auth/Follow';
 
 //Post
 export { default as Post } from './Post/Post';
@@ -36,6 +38,7 @@ export { default as PostShareReplyCommentLike } from './PostShare/PostShareReply
 
 export const entities = [
     User,
+    Follow,
     Post,
     PostLike,
     PostComment,
