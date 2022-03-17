@@ -1,10 +1,15 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator-multi-lang';
-import { Field, InputType} from 'type-graphql';
+import { Field, InputType } from 'type-graphql';
 
 @InputType()
 export class CreatePostShareInput {
     @Field({ nullable: true })
     caption?: string;
+
+    @Field()
+    @IsNotEmpty()
+    @IsNumber()
+    post_id: number;
 }
 
 @InputType()
@@ -17,7 +22,7 @@ export class UpdatePostShareInput {
 }
 
 @InputType()
-export class CreateCommentPostShareInput{
+export class CreateCommentPostShareInput {
     @Field()
     @IsNumber()
     @IsNotEmpty()
@@ -30,7 +35,7 @@ export class CreateCommentPostShareInput{
 }
 
 @InputType()
-export class UpdateCommentPostShareInput{
+export class UpdateCommentPostShareInput {
     @Field()
     @IsNumber()
     @IsNotEmpty()
@@ -43,20 +48,7 @@ export class UpdateCommentPostShareInput{
 }
 
 @InputType()
-export class DeleteCommentPostShareInput{
-    @Field()
-    @IsNumber()
-    @IsNotEmpty()
-    post_share_id: number;
-
-    @Field()
-    @IsNumber()
-    @IsNotEmpty()
-    comment_id: number;
-}
-
-@InputType()
-export class ReplyCommentPostShareInput{
+export class ReplyCommentPostShareInput {
     @Field()
     @IsNumber()
     @IsNotEmpty()

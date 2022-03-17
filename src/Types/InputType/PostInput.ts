@@ -61,19 +61,6 @@ export class UpdateCommentPostInput{
 }
 
 @InputType()
-export class DeleteCommentPostInput{
-    @Field()
-    @IsNumber()
-    @IsNotEmpty()
-    post_id: number;
-
-    @Field()
-    @IsNumber()
-    @IsNotEmpty()
-    comment_id: number;
-}
-
-@InputType()
 export class ReplyCommentPostInput{
     @Field()
     @IsNumber()

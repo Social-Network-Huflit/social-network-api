@@ -6,22 +6,20 @@ import {
     PostLike,
     PostReplyComment,
     PostReplyCommentLike,
-    User,
+    User
 } from '@Entities';
+import { POST } from '@Language';
 import { Authentication } from '@Middlewares/Auth.middleware';
 import {
     CommentMutationResponse,
     Context,
-    CreateCommentPostInput,
-    DeleteCommentPostInput,
-    IMutationResponse,
+    CreateCommentPostInput, IMutationResponse,
     ReplyCommentMutationResponse,
     ReplyCommentPostInput,
     ServerInternal,
-    UpdateCommentPostInput,
+    UpdateCommentPostInput
 } from '@Types';
 import ValidateInput from '@Utils/Validation';
-import i18n from 'i18n';
 import _ from 'lodash';
 import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from 'type-graphql';
 
@@ -45,7 +43,7 @@ export default class InteractPostResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('POST.FIND_POST_FAIL'),
+                    message: POST.FIND_POST_FAIL,
                 };
             }
 
@@ -65,7 +63,7 @@ export default class InteractPostResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: i18n.__('POST.LIKE_POST_SUCCESS'),
+                    message: POST.LIKE_POST_SUCCESS,
                 };
             } else {
                 await PostLike.remove(existingLike);
@@ -73,7 +71,7 @@ export default class InteractPostResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: i18n.__('POST.UNLIKE_POST_SUCCESS'),
+                    message: POST.UNLIKE_POST_SUCCESS,
                 };
             }
         } catch (error: any) {
@@ -105,7 +103,7 @@ export default class InteractPostResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('POST.FIND_POST_FAIL'),
+                    message: POST.FIND_POST_FAIL,
                 };
             }
 
@@ -118,7 +116,7 @@ export default class InteractPostResolver {
             return {
                 code: 201,
                 success: true,
-                message: i18n.__('POST.COMMENT_POST_SUCCESS'),
+                message: POST.COMMENT_POST_SUCCESS,
                 result: await newComment.save(),
             };
         } catch (error: any) {
@@ -148,7 +146,7 @@ export default class InteractPostResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('POST.FIND_COMMENT_FAIL'),
+                    message: POST.FIND_COMMENT_FAIL,
                 };
             }
 
@@ -165,7 +163,7 @@ export default class InteractPostResolver {
             return {
                 code: 200,
                 success: true,
-                message: i18n.__('POST.UPDATE_COMMENT_SUCCESS'),
+                message: POST.UPDATE_COMMENT_SUCCESS,
                 result: updatedComment,
             };
         } catch (error: any) {
@@ -178,16 +176,25 @@ export default class InteractPostResolver {
     @UseMiddleware(Authentication)
     @Mutation(() => IMutationResponse)
     async deleteCommentPost(
-        @Arg('deleteCommentPostInput') deleteCommentPostInput: DeleteCommentPostInput,
+        @Arg('comment_id') comment_id: number,
         @Ctx() { req }: Context
     ): Promise<IMutationResponse> {
         try {
-            const validate = await ValidateInput(req, deleteCommentPostInput);
+            const comment = await PostComment.findOne({
+                id: comment_id,
+                active: true
+            });
 
-            if (validate) return validate;
+            if (!comment) {
+                return {
+                    code: 400,
+                    success: false,
+                    message: POST.FIND_COMMENT_FAIL,
+                };
+            }
 
             const post = await Post.findOne({
-                id: deleteCommentPostInput.post_id,
+                id: comment.post_id,
                 active: true,
             });
 
@@ -195,25 +202,11 @@ export default class InteractPostResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('POST.FIND_POST_FAIL'),
+                    message: POST.FIND_POST_FAIL,
                 };
             }
 
-            const comment = await PostComment.findOne({
-                id: deleteCommentPostInput.comment_id,
-                post,
-                active: true,
-            });
-
-            if (!comment) {
-                return {
-                    code: 400,
-                    success: false,
-                    message: i18n.__('POST.FIND_COMMENT_FAIL'),
-                };
-            }
-
-            if (post.user_id !== req.session.userId || comment.user_id === req.session.userId) {
+            if (post.user_id === req.session.userId || comment.user_id === req.session.userId) {
                 //post owner && comment owner can delete
                 _.extend(comment, {
                     active: false,
@@ -221,7 +214,7 @@ export default class InteractPostResolver {
 
                 await PostComment.update(
                     {
-                        id: deleteCommentPostInput.comment_id,
+                        id: comment_id,
                         active: true,
                     },
                     {
@@ -232,13 +225,13 @@ export default class InteractPostResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: i18n.__('POST.DELETE_COMMENT_POST_SUCCESS'),
+                    message: POST.DELETE_COMMENT_POST_SUCCESS,
                 };
             } else {
                 return {
                     code: 401,
                     success: false,
-                    message: i18n.__('POST.DELETE_COMMENT_POST_FAIL'),
+                    message: POST.DELETE_COMMENT_POST_FAIL,
                 };
             }
         } catch (error: any) {
@@ -247,7 +240,88 @@ export default class InteractPostResolver {
         }
     }
 
-    //Like reply comment post
+    //Delete reply comment post
+    @UseMiddleware(Authentication)
+    @Mutation(() => IMutationResponse)
+    async deleteReplyCommentPost(
+        @Arg('reply_comment_id') reply_comment_id: number,
+        @Ctx() { req }: Context
+    ): Promise<IMutationResponse> {
+        try {
+            const reply_comment = await PostReplyComment.findOne({
+                id: reply_comment_id,
+                active: true
+            });
+
+            if (!reply_comment) {
+                return {
+                    code: 400,
+                    success: false,
+                    message: POST.FIND_COMMENT_FAIL,
+                };
+            }
+
+            const comment = await PostComment.findOne({
+                id: reply_comment.comment_id,
+                active: true
+            })
+
+            if (!comment) {
+                return {
+                    code: 400,
+                    success: false,
+                    message: POST.FIND_COMMENT_FAIL,
+                };
+            }
+
+            const post = await Post.findOne({
+                id: comment.post_id,
+                active: true,
+            });
+
+            if (!post) {
+                return {
+                    code: 400,
+                    success: false,
+                    message: POST.FIND_POST_FAIL,
+                };
+            }
+
+            if (post.user_id === req.session.userId || reply_comment.user_id === req.session.userId) {
+                //post owner && comment owner can delete
+                _.extend(reply_comment, {
+                    active: false,
+                });
+
+                await PostReplyComment.update(
+                    {
+                        id: reply_comment_id,
+                        active: true,
+                    },
+                    {
+                        active: false,
+                    }
+                );
+
+                return {
+                    code: 200,
+                    success: true,
+                    message: POST.DELETE_COMMENT_POST_SUCCESS,
+                };
+            } else {
+                return {
+                    code: 401,
+                    success: false,
+                    message: POST.DELETE_COMMENT_POST_FAIL,
+                };
+            }
+        } catch (error: any) {
+            Logger.error(error);
+            throw new ServerInternal(error.message);
+        }
+    }
+
+    //Like comment post
     @UseMiddleware(Authentication)
     @Mutation(() => IMutationResponse)
     async likeCommentPost(
@@ -265,7 +339,7 @@ export default class InteractPostResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('POST.FIND_COMMENT_FAIL'),
+                    message: POST.FIND_COMMENT_FAIL,
                 };
             }
 
@@ -285,7 +359,7 @@ export default class InteractPostResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: i18n.__('POST.LIKE_COMMENT_SUCCESS'),
+                    message: POST.LIKE_COMMENT_SUCCESS,
                 };
             } else {
                 await PostCommentLike.remove(existingLike);
@@ -293,7 +367,7 @@ export default class InteractPostResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: i18n.__('POST.UNLIKE_COMMENT_SUCCESS'),
+                    message: POST.UNLIKE_COMMENT_SUCCESS,
                 };
             }
         } catch (error: any) {
@@ -323,7 +397,7 @@ export default class InteractPostResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('POST.FIND_COMMENT_FAIL'),
+                    message: POST.FIND_COMMENT_FAIL,
                 };
             }
 
@@ -332,13 +406,13 @@ export default class InteractPostResolver {
             const newReplyComment = PostReplyComment.create({
                 ...replyCommentPostInput,
                 owner,
-                comment
+                comment,
             });
 
             return {
                 code: 201,
                 success: true,
-                message: i18n.__('POST.REPLY_COMMENT_SUCCESS'),
+                message: POST.REPLY_COMMENT_SUCCESS,
                 result: await newReplyComment.save(),
             };
         } catch (error: any) {
@@ -365,7 +439,7 @@ export default class InteractPostResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('POST.FIND_COMMENT_FAIL'),
+                    message: POST.FIND_COMMENT_FAIL,
                 };
             }
 
@@ -385,7 +459,7 @@ export default class InteractPostResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: i18n.__('POST.LIKE_COMMENT_SUCCESS'),
+                    message: POST.LIKE_COMMENT_SUCCESS,
                 };
             } else {
                 await PostReplyCommentLike.remove(existingLike);
@@ -393,7 +467,7 @@ export default class InteractPostResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: i18n.__('POST.UNLIKE_COMMENT_SUCCESS'),
+                    message: POST.UNLIKE_COMMENT_SUCCESS,
                 };
             }
         } catch (error: any) {

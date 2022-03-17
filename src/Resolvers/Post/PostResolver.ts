@@ -1,51 +1,53 @@
 import { Logger } from '@Configs';
 import { Post, PostComment, PostLike, PostShare, User } from '@Entities';
+import { POST } from '@Language';
 import { Authentication } from '@Middlewares/Auth.middleware';
 import {
     Context,
-    CreatePostInput, PostMutationResponse,
-    ServerInternal, UpdatePostInput
+    CreatePostInput,
+    PostMutationResponse,
+    ServerInternal,
+    UpdatePostInput
 } from '@Types';
 import ValidateInput from '@Utils/Validation';
-import i18n from 'i18n';
 import _ from 'lodash';
 import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
 
 @Resolver(() => Post)
 export default class PostResolver {
     //owner
-    @FieldResolver(() => User, {nullable: true})
-    async owner(@Root() root: Post){
+    @FieldResolver(() => User, { nullable: true })
+    async owner(@Root() root: Post) {
         return await User.findOne({
             id: root.user_id,
-            active: true
+            active: true,
         });
     }
 
     //likes
     @FieldResolver(() => [PostLike])
-    async likes(@Root() root: Post): Promise<PostLike[]>{
+    async likes(@Root() root: Post): Promise<PostLike[]> {
         return await PostLike.find({
-            post_id: root.id
-        })
+            post_id: root.id,
+        });
     }
 
     //comments
     @FieldResolver(() => [PostComment])
-    async comments(@Root() root: Post): Promise<PostComment[]>{
+    async comments(@Root() root: Post): Promise<PostComment[]> {
         return await PostComment.find({
             post_id: root.id,
-            active: true
-        })
-    };
+            active: true,
+        });
+    }
 
     //shares
     @FieldResolver(() => [PostShare])
-    async shares(@Root() root: Post): Promise<PostShare[]>{
+    async shares(@Root() root: Post): Promise<PostShare[]> {
         return await PostShare.find({
             post_id: root.id,
-            active: true
-        })
+            active: true,
+        });
     }
 
     //Create Post
@@ -70,7 +72,7 @@ export default class PostResolver {
             return {
                 code: 200,
                 success: true,
-                message: i18n.__('POST.CREATE_POST_SUCCESS'),
+                message: POST.CREATE_POST_SUCCESS,
                 result: await newPost.save(),
             };
         } catch (error: any) {
@@ -96,14 +98,14 @@ export default class PostResolver {
             const post = await Post.findOne({
                 id: updatePostInput.id,
                 owner,
-                active: true
+                active: true,
             });
 
             if (!post) {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('POST.FIND_POST_FAIL'),
+                    message: POST.FIND_POST_FAIL,
                 };
             }
 
@@ -113,7 +115,7 @@ export default class PostResolver {
                 {
                     id: updatePostInput.id,
                     owner,
-                    active: true
+                    active: true,
                 },
                 {
                     ...updatedPost,
@@ -123,7 +125,7 @@ export default class PostResolver {
             return {
                 code: 200,
                 success: true,
-                message: i18n.__('POST.UPDATE_POST_SUCCESS'),
+                message: POST.UPDATE_POST_SUCCESS,
                 result: updatedPost,
             };
         } catch (error: any) {
@@ -145,36 +147,36 @@ export default class PostResolver {
             const post = await Post.findOne({
                 id,
                 owner,
-                active: true
+                active: true,
             });
 
             if (!post) {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('POST.FIND_POST_FAIL'),
+                    message: POST.FIND_POST_FAIL,
                 };
             }
 
             _.extend(post, {
-                active: false
+                active: false,
             });
 
             await Post.update(
                 {
                     id,
                     owner,
-                    active: true
+                    active: true,
                 },
                 {
-                    active: false
+                    active: false,
                 }
             );
 
             return {
                 code: 200,
                 success: true,
-                message: i18n.__('POST.DELETE_POST_SUCCESS'),
+                message: POST.DELETE_POST_SUCCESS,
             };
         } catch (error: any) {
             Logger.error(error);

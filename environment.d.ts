@@ -4,6 +4,7 @@ declare global {
         NODE_ENV: 'development' | 'production';
         PORT: string;
         MONGO_DB_URL?: string;
+        MONGO_DB_DEV?: string;
         SESSION_SECRET?: string;
         TYPEORM_USERNAME?: string;
         TYPEORM_PASSWORD?: string;

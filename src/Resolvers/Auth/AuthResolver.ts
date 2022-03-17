@@ -1,10 +1,10 @@
-import {Logger} from '@Configs';
+import { Logger } from '@Configs';
 import { COOKIES_NAME } from '@Constants/index';
 import { User } from '@Entities';
+import { AUTH } from '@Language';
 import { Context, LoginInput, RegisterInput, ServerInternal, UserMutationResponse } from '@Types';
 import ValidateInput from '@Utils/Validation';
 import argon2 from 'argon2';
-import i18n from 'i18n';
 import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
 
 @Resolver()
@@ -34,14 +34,14 @@ export default class AuthResolver {
             if (existingUser) {
                 return {
                     code: 400,
-                    message: i18n.__('AUTH.REGISTER.DUPLICATE'),
+                    message: AUTH.REGISTER.DUPLICATE,
                     success: false,
                     errors: [
                         {
                             field: existingUser.username === username ? 'username' : 'email',
                             message: `${
                                 existingUser.username === username ? 'Username' : 'Email'
-                            } ${i18n.__('AUTH.REGISTER.EXIST')}`,
+                            } ${AUTH.REGISTER.EXIST}`,
                         },
                     ],
                 };
@@ -57,7 +57,7 @@ export default class AuthResolver {
             return {
                 code: 201,
                 success: true,
-                message: i18n.__('AUTH.REGISTER.SUCCESS'),
+                message: AUTH.REGISTER.SUCCESS,
                 result: await newUser.save(),
             };
         } catch (error: any) {
@@ -91,13 +91,13 @@ export default class AuthResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('AUTH.LOGIN.INVALID.INDEX'),
+                    message: AUTH.LOGIN.INVALID.INDEX,
                     errors: [
                         {
                             field: 'usernameOrEmail',
-                            message: i18n.__('AUTH.LOGIN.INVALID.USERNAME_EMAIL'),
+                            message: AUTH.LOGIN.INVALID.USERNAME_EMAIL,
                         },
-                        { field: 'password', message: i18n.__('AUTH.LOGIN.INVALID.PASSWORD') },
+                        { field: 'password', message: AUTH.LOGIN.INVALID.PASSWORD },
                     ],
                 };
             }
@@ -107,7 +107,7 @@ export default class AuthResolver {
             return {
                 code: 200,
                 success: true,
-                message: i18n.__('AUTH.LOGIN.SUCCESS'),
+                message: AUTH.LOGIN.SUCCESS,
             };
         } catch (error: any) {
             Logger.error(error.message);

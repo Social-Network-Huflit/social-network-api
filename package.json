@@ -3,8 +3,8 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "start": "node ./build/index.js",
-        "dev": "nodemon ./src/index.ts",
+        "start": "export NODE_ENV=production && node ./build/index.js",
+        "dev": "export NODE_ENV=development && nodemon ./src/index.ts",
         "build": "rm -rf ./build && tsc"
     },
     "repository": "git@github-dobafullstack.com:Social-Network-Huflit/social-network-api.git",
@@ -53,6 +53,7 @@
         "@Middlewares": "./src/Middlewares",
         "@Resolvers": "./src/Resolvers",
         "@Types": "./src/Types",
-        "@Utils": "./src/Utils"
+        "@Utils": "./src/Utils",
+        "@Language": "./src/languages/i18n"
     }
 }

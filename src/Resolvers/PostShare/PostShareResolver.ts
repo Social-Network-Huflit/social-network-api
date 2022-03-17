@@ -1,16 +1,17 @@
 import { Logger } from '@Configs';
-import { PostShare, PostShareComment, PostShareLike, User } from '@Entities';
+import { Post, PostShare, PostShareComment, PostShareLike, User } from '@Entities';
+import { POST, POST_SHARE } from '@Language';
 import { Authentication } from '@Middlewares/Auth.middleware';
 import {
     Context,
     CreatePostShareInput,
     PostShareMutationResponse,
     ServerInternal,
-    UpdatePostShareInput,
+    UpdatePostShareInput
 } from '@Types';
 import ValidateInput from '@Utils/Validation';
-import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
 import _ from 'lodash';
+import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
 
 @Resolver(() => PostShare)
 export default class PostShareResolver {
@@ -43,7 +44,7 @@ export default class PostShareResolver {
     //Create Post Share
     @UseMiddleware(Authentication)
     @Mutation(() => PostShareMutationResponse)
-    async createPost(
+    async createPostShare(
         @Arg('createPostInput') createPostInput: CreatePostShareInput,
         @Ctx() { req }: Context
     ): Promise<PostShareMutationResponse> {
@@ -54,6 +55,19 @@ export default class PostShareResolver {
 
             const owner = await User.getMyUser(req);
 
+            const post = await Post.findOne({
+                id: createPostInput.post_id,
+                active: true,
+            });
+
+            if (!post) {
+                return {
+                    code: 400,
+                    success: false,
+                    message: POST.FIND_POST_FAIL,
+                };
+            }
+
             const newPostShare = PostShare.create({
                 ...createPostInput,
                 owner,
@@ -62,7 +76,7 @@ export default class PostShareResolver {
             return {
                 code: 200,
                 success: true,
-                message: i18n.__('POST_SHARE.CREATE_POST_SHARE_SUCCESS'),
+                message: POST_SHARE.CREATE_POST_SHARE_SUCCESS,
                 result: await newPostShare.save(),
             };
         } catch (error: any) {
@@ -74,19 +88,19 @@ export default class PostShareResolver {
     //Update Post Share
     @UseMiddleware(Authentication)
     @Mutation(() => PostShareMutationResponse)
-    async updatePost(
-        @Arg('updatePostInput') updatePostInput: UpdatePostShareInput,
+    async updatePostShare(
+        @Arg('updatePostShareInput') updatePostShareInput: UpdatePostShareInput,
         @Ctx() { req }: Context
     ): Promise<PostShareMutationResponse> {
         try {
-            const validate = await ValidateInput(req, updatePostInput);
+            const validate = await ValidateInput(req, updatePostShareInput);
 
             if (validate) return validate;
 
             const owner = await User.getMyUser(req);
 
             const post = await PostShare.findOne({
-                id: updatePostInput.id,
+                id: updatePostShareInput.id,
                 owner,
                 active: true,
             });
@@ -95,15 +109,15 @@ export default class PostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('POST.FIND_POST_FAIL'),
+                    message: POST.FIND_POST_FAIL,
                 };
             }
 
-            const updatedPost = _.extend(post, updatePostInput);
+            const updatedPost = _.extend(post, updatePostShareInput);
 
             await PostShare.update(
                 {
-                    id: updatePostInput.id,
+                    id: updatePostShareInput.id,
                     owner,
                     active: true,
                 },
@@ -115,7 +129,7 @@ export default class PostShareResolver {
             return {
                 code: 200,
                 success: true,
-                message: i18n.__('POST.UPDATE_POST_SUCCESS'),
+                message: POST.UPDATE_POST_SUCCESS,
                 result: updatedPost,
             };
         } catch (error: any) {
@@ -124,10 +138,10 @@ export default class PostShareResolver {
         }
     }
 
-    //Delete Post
+    //Delete Post Share
     @UseMiddleware(Authentication)
     @Mutation(() => PostShareMutationResponse)
-    async deletePost(
+    async deletePostShare(
         @Arg('post_share_id') id: number,
         @Ctx() { req }: Context
     ): Promise<PostShareMutationResponse> {
@@ -144,7 +158,7 @@ export default class PostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: i18n.__('POST.FIND_POST_FAIL'),
+                    message: POST.FIND_POST_FAIL,
                 };
             }
 
@@ -166,7 +180,7 @@ export default class PostShareResolver {
             return {
                 code: 200,
                 success: true,
-                message: i18n.__('POST.DELETE_POST_SUCCESS'),
+                message: POST.DELETE_POST_SUCCESS,
             };
         } catch (error: any) {
             Logger.error(error);

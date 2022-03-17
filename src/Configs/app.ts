@@ -1,4 +1,4 @@
-import { __prod__ } from '@Constants/index';
+import { MONGO_DB_URL, __prod__ } from '@Constants/index';
 import { COOKIES_NAME } from '@Constants/index';
 import MongoStore from 'connect-mongo';
 import express from 'express';
@@ -6,7 +6,7 @@ import session from 'express-session';
 import i18n from 'i18n';
 import path from 'path';
 
-const device = require('express-device')
+const device = require('express-device');
 const app = express();
 
 i18n.configure({
@@ -20,7 +20,7 @@ i18n.configure({
 app.use(
     session({
         name: COOKIES_NAME,
-        store: MongoStore.create({ mongoUrl: process.env.MONGO_DB_URL }),
+        store: MongoStore.create({ mongoUrl: MONGO_DB_URL }),
         cookie: {
             maxAge: 1000 * 60 * 60 * 60, //one hour
             httpOnly: true,
@@ -33,7 +33,7 @@ app.use(
     })
 );
 
-app.use(i18n.init)
+app.use(i18n.init);
 app.use(device.capture());
 
 export default app;

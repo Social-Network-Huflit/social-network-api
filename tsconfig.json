@@ -19,6 +19,7 @@
             "@Resolvers": ["./src/Resolvers/index"],
             "@Types": ["./src/Types/index"],
             "@Utils/*": ["./src/Utils/*"],
+            "@Language": ["./src/languages/i18n/index"]
         }
     }
 }

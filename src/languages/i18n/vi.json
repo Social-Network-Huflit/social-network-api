@@ -1,18 +1,37 @@
 {
-    "BAD_REQUEST": "",
+    "BAD_REQUEST": "BAD_REQUEST",
     "AUTH": {
         "REGISTER": {
-            "DUPLICATE": "",
-            "EXIST": "",
-            "SUCCESS": ""
+            "DUPLICATE": "DUPLICATE",
+            "EXIST": "EXIST",
+            "SUCCESS": "SUCCESS"
         },
         "LOGIN": {
             "INVALID": {
-                "INDEX": "",
-                "USERNAME_EMAIL": "",
-                "PASSWORD": ""
+                "INDEX": "INDEX",
+                "USERNAME_EMAIL": "USERNAME_EMAIL",
+                "PASSWORD": "PASSWORD"
             },
-            "SUCCESS": ""
+            "SUCCESS": "SUCCESS"
         }
+    },
+    "POST": {
+        "CREATE_POST_SUCCESS": "CREATE_POST_SUCCESS",
+        "FIND_POST_FAIL": "FIND_POST_FAIL",
+        "UPDATE_POST_SUCCESS": "UPDATE_POST_SUCCESS",
+        "DELETE_POST_SUCCESS": "DELETE_POST_SUCCESS",
+        "LIKE_POST_SUCCESS": "LIKE_POST_SUCCESS",
+        "UNLIKE_POST_SUCCESS": "UNLIKE_POST_SUCCESS",
+        "COMMENT_POST_SUCCESS": "COMMENT_POST_SUCCESS",
+        "FIND_COMMENT_FAIL": "FIND_COMMENT_FAIL",
+        "UPDATE_COMMENT_SUCCESS": "UPDATE_COMMENT_SUCCESS",
+        "DELETE_COMMENT_POST_SUCCESS": "DELETE_COMMENT_POST_SUCCESS",
+        "DELETE_COMMENT_POST_FAIL": "DELETE_COMMENT_POST_FAIL",
+        "LIKE_COMMENT_SUCCESS": "LIKE_COMMENT_SUCCESS",
+        "UNLIKE_COMMENT_SUCCESS": "UNLIKE_COMMENT_SUCCESS",
+        "REPLY_COMMENT_SUCCESS": "REPLY_COMMENT_SUCCESS"
+    },
+    "POST_SHARE": {
+        "CREATE_POST_SHARE_SUCCESS": "CREATE_POST_SHARE_SUCCESS"
     }
 }
