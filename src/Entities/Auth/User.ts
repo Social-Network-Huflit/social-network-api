@@ -3,6 +3,7 @@ import {
     BaseEntity,
     Column,
     CreateDateColumn,
+    DeleteDateColumn,
     Entity,
     OneToMany,
     PrimaryGeneratedColumn,
@@ -118,10 +119,6 @@ export default class User extends BaseEntity {
     followers: User[];
 
     @Field()
-    @Column({ default: true })
-    active: boolean;
-
-    @Field()
     @CreateDateColumn()
     createdAt: Date;
 
@@ -129,10 +126,12 @@ export default class User extends BaseEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
+    @DeleteDateColumn()
+    deletedAt: Date;
+
     public static async getMyUser(req: Request): Promise<User> {
         const user = await User.findOne({
             id: req.session.userId,
-            active: true,
         });
 
         if (!user) {

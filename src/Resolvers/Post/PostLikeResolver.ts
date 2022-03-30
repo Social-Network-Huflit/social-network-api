@@ -9,7 +9,6 @@ export default class PostLikeResolver {
     async post(@Root() root: PostLike): Promise<Post | null | undefined> {
         return await Post.findOne({
             id: root.post_id,
-            active: true,
         });
     }
 
@@ -18,7 +17,6 @@ export default class PostLikeResolver {
     async owner(@Root() root: PostLike): Promise<User | null | undefined> {
         return await User.findOne({
             id: root.user_id,
-            active: true,
         });
     }
 }

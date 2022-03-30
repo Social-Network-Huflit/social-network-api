@@ -3,6 +3,7 @@ import {
     BaseEntity,
     Column,
     CreateDateColumn,
+    DeleteDateColumn,
     Entity,
     JoinColumn,
     ManyToMany,
@@ -49,14 +50,13 @@ export default class PostComment extends BaseEntity {
     reply_comments: PostReplyComment[];
 
     @Field()
-    @Column({ default: true })
-    active: boolean;
-
-    @Field()
     @CreateDateColumn()
     createdAt: Date;
 
     @Field()
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
 }

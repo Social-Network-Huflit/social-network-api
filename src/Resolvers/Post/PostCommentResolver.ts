@@ -8,7 +8,6 @@ export default class PostCommentResolver{
     async owner(@Root() root: PostComment): Promise<User | null | undefined>{
         return await User.findOne({
             id: root.user_id,
-            active: true
         })
     }
 
@@ -17,7 +16,6 @@ export default class PostCommentResolver{
     async post(@Root() root: PostComment): Promise<Post | null | undefined>{
         return await Post.findOne({
             id: root.post_id,
-            active: true
         })
     }
 
@@ -34,7 +32,6 @@ export default class PostCommentResolver{
     async reply_comments(@Root() root: PostComment): Promise<PostReplyComment[]>{
         return await PostReplyComment.find({
             comment_id: root.id,
-            active: true
         })
     }
 }

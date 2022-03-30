@@ -13,14 +13,15 @@ import { Authentication } from '@Middlewares/Auth.middleware';
 import {
     CommentMutationResponse,
     Context,
-    CreateCommentPostInput, IMutationResponse,
+    CreateCommentPostInput,
+    IMutationResponse,
     ReplyCommentMutationResponse,
     ReplyCommentPostInput,
     ServerInternal,
     UpdateCommentPostInput
 } from '@Types';
+import UpdateEntity from '@Utils/UpdateEntity';
 import ValidateInput from '@Utils/Validation';
-import _ from 'lodash';
 import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from 'type-graphql';
 
 @Resolver()
@@ -36,7 +37,6 @@ export default class InteractPostResolver {
             const owner = await User.getMyUser(req);
             const post = await Post.findOne({
                 id: post_id,
-                active: true,
             });
 
             if (!post) {
@@ -96,7 +96,6 @@ export default class InteractPostResolver {
 
             const post = await Post.findOne({
                 id: createCommentInput.post_id,
-                active: true,
             });
 
             if (!post) {
@@ -139,7 +138,6 @@ export default class InteractPostResolver {
 
             const comment = await PostComment.findOne({
                 id: updateCommentInput.id,
-                active: true,
             });
 
             if (!comment) {
@@ -150,16 +148,8 @@ export default class InteractPostResolver {
                 };
             }
 
-            const updatedComment = _.extend(comment, updateCommentInput);
-
-            await PostComment.update(
-                {
-                    id: updateCommentInput.id,
-                    active: true,
-                },
-                updatedComment
-            );
-
+            const updatedComment = await UpdateEntity(PostComment, comment, updateCommentInput);
+            
             return {
                 code: 200,
                 success: true,
@@ -182,7 +172,6 @@ export default class InteractPostResolver {
         try {
             const comment = await PostComment.findOne({
                 id: comment_id,
-                active: true
             });
 
             if (!comment) {
@@ -195,7 +184,6 @@ export default class InteractPostResolver {
 
             const post = await Post.findOne({
                 id: comment.post_id,
-                active: true,
             });
 
             if (!post) {
@@ -208,19 +196,7 @@ export default class InteractPostResolver {
 
             if (post.user_id === req.session.userId || comment.user_id === req.session.userId) {
                 //post owner && comment owner can delete
-                _.extend(comment, {
-                    active: false,
-                });
-
-                await PostComment.update(
-                    {
-                        id: comment_id,
-                        active: true,
-                    },
-                    {
-                        active: false,
-                    }
-                );
+                await PostComment.softRemove(comment);
 
                 return {
                     code: 200,
@@ -250,7 +226,6 @@ export default class InteractPostResolver {
         try {
             const reply_comment = await PostReplyComment.findOne({
                 id: reply_comment_id,
-                active: true
             });
 
             if (!reply_comment) {
@@ -263,8 +238,7 @@ export default class InteractPostResolver {
 
             const comment = await PostComment.findOne({
                 id: reply_comment.comment_id,
-                active: true
-            })
+            });
 
             if (!comment) {
                 return {
@@ -276,7 +250,6 @@ export default class InteractPostResolver {
 
             const post = await Post.findOne({
                 id: comment.post_id,
-                active: true,
             });
 
             if (!post) {
@@ -287,21 +260,13 @@ export default class InteractPostResolver {
                 };
             }
 
-            if (post.user_id === req.session.userId || reply_comment.user_id === req.session.userId) {
+            if (
+                post.user_id === req.session.userId ||
+                reply_comment.user_id === req.session.userId
+            ) {
                 //post owner && comment owner can delete
-                _.extend(reply_comment, {
-                    active: false,
-                });
 
-                await PostReplyComment.update(
-                    {
-                        id: reply_comment_id,
-                        active: true,
-                    },
-                    {
-                        active: false,
-                    }
-                );
+                await PostReplyComment.softRemove(reply_comment);
 
                 return {
                     code: 200,
@@ -332,7 +297,6 @@ export default class InteractPostResolver {
             const owner = await User.getMyUser(req);
             const comment = await PostComment.findOne({
                 id: comment_id,
-                active: true,
             });
 
             if (!comment) {
@@ -390,7 +354,6 @@ export default class InteractPostResolver {
 
             const comment = await PostComment.findOne({
                 id: replyCommentPostInput.comment_id,
-                active: true,
             });
 
             if (!comment) {
@@ -432,7 +395,6 @@ export default class InteractPostResolver {
             const owner = await User.getMyUser(req);
             const reply_comment = await PostReplyComment.findOne({
                 id: reply_comment_id,
-                active: true,
             });
 
             if (!reply_comment) {

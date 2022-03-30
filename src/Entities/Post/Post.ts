@@ -3,6 +3,7 @@ import {
     BaseEntity,
     Column,
     CreateDateColumn,
+    DeleteDateColumn,
     Entity,
     JoinColumn,
     ManyToOne,
@@ -25,7 +26,7 @@ export default class Post extends BaseEntity {
 
     @Field({ nullable: true })
     @Column({ nullable: true })
-    image_link: string;
+    image_link?: string;
 
     @Field({ nullable: true })
     @Column({ nullable: true })
@@ -56,14 +57,13 @@ export default class Post extends BaseEntity {
     shares: PostShare[];
 
     @Field()
-    @Column({ default: true })
-    active: boolean;
-
-    @Field()
     @CreateDateColumn()
     createdAt: Date;
 
     @Field()
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
 }

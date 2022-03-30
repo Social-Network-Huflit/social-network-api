@@ -27,7 +27,7 @@ export default class AuthResolver {
             const existingUser = await User.findOne({
                 where: [
                     { username, active: true },
-                    { email, active: true },
+                    { email },
                 ],
             });
 
@@ -83,7 +83,7 @@ export default class AuthResolver {
             const existingUser = await User.findOne({
                 where: [
                     { username: usernameOrEmail, active: true },
-                    { email: usernameOrEmail, active: true },
+                    { email: usernameOrEmail },
                 ],
             });
 

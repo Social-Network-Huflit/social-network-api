@@ -8,7 +8,6 @@ export default class PostShareCommentLikeResolver{
     async owner(@Root() root: PostShareCommentLike): Promise<User | undefined | null>{
         return await User.findOne({
             id: root.user_id,
-            active: true
         })
     }
 
@@ -17,7 +16,6 @@ export default class PostShareCommentLikeResolver{
     async comment(@Root() root: PostShareCommentLike): Promise<PostShareComment | undefined | null>{
         return await PostShareComment.findOne({
             id: root.post_share_comment_id,
-            active: true
         })
     }
 }

@@ -7,8 +7,9 @@ import {
     CreatePostShareInput,
     PostShareMutationResponse,
     ServerInternal,
-    UpdatePostShareInput
+    UpdatePostShareInput,
 } from '@Types';
+import UpdateEntity from '@Utils/UpdateEntity';
 import ValidateInput from '@Utils/Validation';
 import _ from 'lodash';
 import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
@@ -20,7 +21,6 @@ export default class PostShareResolver {
     async owner(@Root() root: PostShare): Promise<User | null | undefined> {
         return await User.findOne({
             id: root.user_id,
-            active: true,
         });
     }
 
@@ -29,7 +29,6 @@ export default class PostShareResolver {
     async comments(@Root() root: PostShare): Promise<PostShareComment[]> {
         return await PostShareComment.find({
             post_share_id: root.id,
-            active: true,
         });
     }
 
@@ -57,7 +56,6 @@ export default class PostShareResolver {
 
             const post = await Post.findOne({
                 id: createPostInput.post_id,
-                active: true,
             });
 
             if (!post) {
@@ -102,7 +100,6 @@ export default class PostShareResolver {
             const post = await PostShare.findOne({
                 id: updatePostShareInput.id,
                 owner,
-                active: true,
             });
 
             if (!post) {
@@ -113,18 +110,7 @@ export default class PostShareResolver {
                 };
             }
 
-            const updatedPost = _.extend(post, updatePostShareInput);
-
-            await PostShare.update(
-                {
-                    id: updatePostShareInput.id,
-                    owner,
-                    active: true,
-                },
-                {
-                    ...updatedPost,
-                }
-            );
+            const updatedPost = await UpdateEntity(PostShare, post, updatePostShareInput);
 
             return {
                 code: 200,
@@ -151,7 +137,6 @@ export default class PostShareResolver {
             const post = await PostShare.findOne({
                 id,
                 owner,
-                active: true,
             });
 
             if (!post) {
@@ -162,20 +147,7 @@ export default class PostShareResolver {
                 };
             }
 
-            _.extend(post, {
-                active: false,
-            });
-
-            await PostShare.update(
-                {
-                    id,
-                    owner,
-                    active: true,
-                },
-                {
-                    active: false,
-                }
-            );
+            await PostShare.softRemove(post);
 
             return {
                 code: 200,

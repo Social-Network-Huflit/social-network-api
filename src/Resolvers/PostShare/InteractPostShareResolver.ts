@@ -13,14 +13,15 @@ import { Authentication } from '@Middlewares/Auth.middleware';
 import {
     CommentPostShareMutationResponse,
     Context,
-    CreateCommentPostShareInput, IMutationResponse,
+    CreateCommentPostShareInput,
+    IMutationResponse,
     ReplyCommentPostShareInput,
     ReplyCommentPostShareMutationResponse,
     ServerInternal,
     UpdateCommentPostShareInput
 } from '@Types';
+import UpdateEntity from '@Utils/UpdateEntity';
 import ValidateInput from '@Utils/Validation';
-import _ from 'lodash';
 import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from 'type-graphql';
 
 @Resolver()
@@ -36,7 +37,6 @@ export default class InteractPostShareResolver {
             const owner = await User.getMyUser(req);
             const post_share = await PostShare.findOne({
                 id: post_share_id,
-                active: true,
             });
 
             if (!post_share) {
@@ -96,7 +96,6 @@ export default class InteractPostShareResolver {
 
             const post_share = await PostShare.findOne({
                 id: createCommentInput.post_share_id,
-                active: true,
             });
 
             if (!post_share) {
@@ -139,7 +138,6 @@ export default class InteractPostShareResolver {
 
             const comment = await PostShareComment.findOne({
                 id: updateCommentInput.id,
-                active: true,
             });
 
             if (!comment) {
@@ -150,15 +148,7 @@ export default class InteractPostShareResolver {
                 };
             }
 
-            const updatedComment = _.extend(comment, updateCommentInput);
-
-            await PostShareComment.update(
-                {
-                    id: updateCommentInput.id,
-                    active: true,
-                },
-                updatedComment
-            );
+            const updatedComment = await UpdateEntity(PostShareComment, comment, updateCommentInput);
 
             return {
                 code: 200,
@@ -182,7 +172,6 @@ export default class InteractPostShareResolver {
         try {
             const comment = await PostShareComment.findOne({
                 id: comment_id,
-                active: true,
             });
 
             if (!comment) {
@@ -195,7 +184,6 @@ export default class InteractPostShareResolver {
 
             const post_share = await PostShare.findOne({
                 id: comment.post_share_id,
-                active: true,
             });
 
             if (!post_share) {
@@ -211,19 +199,8 @@ export default class InteractPostShareResolver {
                 comment.user_id === req.session.userId
             ) {
                 //post owner && comment owner can delete
-                _.extend(comment, {
-                    active: false,
-                });
 
-                await PostShareComment.update(
-                    {
-                        id: comment_id,
-                        active: true,
-                    },
-                    {
-                        active: false,
-                    }
-                );
+                await PostShareComment.softRemove(comment);
 
                 return {
                     code: 200,
@@ -253,7 +230,6 @@ export default class InteractPostShareResolver {
         try {
             const reply_comment = await PostShareReplyComment.findOne({
                 id: reply_comment_id,
-                active: true,
             });
 
             if (!reply_comment) {
@@ -266,8 +242,7 @@ export default class InteractPostShareResolver {
 
             const comment = await PostShareComment.findOne({
                 id: reply_comment.post_share_comment_id,
-                active: true
-            })
+            });
 
             if (!comment) {
                 return {
@@ -279,7 +254,6 @@ export default class InteractPostShareResolver {
 
             const post_share = await PostShare.findOne({
                 id: comment.post_share_id,
-                active: true,
             });
 
             if (!post_share) {
@@ -295,19 +269,8 @@ export default class InteractPostShareResolver {
                 reply_comment.user_id === req.session.userId
             ) {
                 //post owner && comment owner can delete
-                _.extend(reply_comment, {
-                    active: false,
-                });
 
-                await PostShareReplyComment.update(
-                    {
-                        id: reply_comment_id,
-                        active: true,
-                    },
-                    {
-                        active: false,
-                    }
-                );
+                await PostShareReplyComment.softRemove(reply_comment);
 
                 return {
                     code: 200,
@@ -338,7 +301,6 @@ export default class InteractPostShareResolver {
             const owner = await User.getMyUser(req);
             const comment = await PostShareComment.findOne({
                 id: comment_id,
-                active: true,
             });
 
             if (!comment) {
@@ -396,7 +358,6 @@ export default class InteractPostShareResolver {
 
             const comment = await PostShareComment.findOne({
                 id: replyCommentPostInput.comment_id,
-                active: true,
             });
 
             if (!comment) {
@@ -438,7 +399,6 @@ export default class InteractPostShareResolver {
             const owner = await User.getMyUser(req);
             const reply_comment = await PostShareReplyComment.findOne({
                 id: reply_comment_id,
-                active: true,
             });
 
             if (!reply_comment) {

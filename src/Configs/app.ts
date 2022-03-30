@@ -5,6 +5,7 @@ import express from 'express';
 import session from 'express-session';
 import i18n from 'i18n';
 import path from 'path';
+import { graphqlUploadExpress } from 'graphql-upload';
 
 const device = require('express-device');
 const app = express();
@@ -35,5 +36,6 @@ app.use(
 
 app.use(i18n.init);
 app.use(device.capture());
+app.use(graphqlUploadExpress());
 
 export default app;

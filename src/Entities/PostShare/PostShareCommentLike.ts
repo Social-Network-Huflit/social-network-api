@@ -3,6 +3,7 @@ import {
     BaseEntity,
     Column,
     CreateDateColumn,
+    DeleteDateColumn,
     Entity,
     JoinColumn,
     ManyToOne,
@@ -41,4 +42,7 @@ export default class PostShareCommentLike extends BaseEntity {
     @UpdateDateColumn()
     @Field()
     updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
 }

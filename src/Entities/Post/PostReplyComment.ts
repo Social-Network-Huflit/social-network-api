@@ -3,6 +3,7 @@ import {
     BaseEntity,
     Column,
     CreateDateColumn,
+    DeleteDateColumn,
     Entity,
     JoinColumn,
     ManyToOne,
@@ -47,14 +48,13 @@ export default class PostReplyComment extends BaseEntity {
     likes: PostReplyCommentLike[];
 
     @Field()
-    @Column({ default: true })
-    active: boolean;
-
-    @Field()
     @CreateDateColumn()
     createdAt: Date;
 
     @Field()
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
 }

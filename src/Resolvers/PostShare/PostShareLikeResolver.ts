@@ -8,7 +8,6 @@ export default class PostShareLikeResolver{
     async owner(@Root() root: PostShareLike): Promise<User | undefined | null>{
         return await User.findOne({
             id: root.user_id,
-            active: true
         })
     }
 
@@ -17,7 +16,6 @@ export default class PostShareLikeResolver{
     async post_share(@Root() root: PostShareLike): Promise<PostShare | undefined | null>{
         return await PostShare.findOne({
             id: root.post_share_id,
-            active: true
         })
     }
 }

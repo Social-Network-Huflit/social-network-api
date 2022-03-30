@@ -10,7 +10,6 @@ export default class PostReplyCommentLikeResolver {
     ): Promise<PostReplyComment | null | undefined> {
         return await PostReplyComment.findOne({
             id: root.reply_comment_id,
-            active: true,
         });
     }
 
@@ -19,7 +18,6 @@ export default class PostReplyCommentLikeResolver {
     async owner(@Root() root: PostReplyCommentLike): Promise<User | null | undefined> {
         return await User.findOne({
             id: root.user_id,
-            active: true,
         });
     }
 }

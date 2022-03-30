@@ -7,10 +7,10 @@ import {
     CreatePostInput,
     PostMutationResponse,
     ServerInternal,
-    UpdatePostInput
+    UpdatePostInput,
 } from '@Types';
+import UpdateEntity from '@Utils/UpdateEntity';
 import ValidateInput from '@Utils/Validation';
-import _ from 'lodash';
 import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
 
 @Resolver(() => Post)
@@ -20,7 +20,6 @@ export default class PostResolver {
     async owner(@Root() root: Post) {
         return await User.findOne({
             id: root.user_id,
-            active: true,
         });
     }
 
@@ -37,7 +36,6 @@ export default class PostResolver {
     async comments(@Root() root: Post): Promise<PostComment[]> {
         return await PostComment.find({
             post_id: root.id,
-            active: true,
         });
     }
 
@@ -46,7 +44,6 @@ export default class PostResolver {
     async shares(@Root() root: Post): Promise<PostShare[]> {
         return await PostShare.find({
             post_id: root.id,
-            active: true,
         });
     }
 
@@ -98,7 +95,6 @@ export default class PostResolver {
             const post = await Post.findOne({
                 id: updatePostInput.id,
                 owner,
-                active: true,
             });
 
             if (!post) {
@@ -109,18 +105,7 @@ export default class PostResolver {
                 };
             }
 
-            const updatedPost = _.extend(post, updatePostInput);
-
-            await Post.update(
-                {
-                    id: updatePostInput.id,
-                    owner,
-                    active: true,
-                },
-                {
-                    ...updatedPost,
-                }
-            );
+            const updatedPost = await UpdateEntity(Post, post, updatePostInput);
 
             return {
                 code: 200,
@@ -147,7 +132,6 @@ export default class PostResolver {
             const post = await Post.findOne({
                 id,
                 owner,
-                active: true,
             });
 
             if (!post) {
@@ -158,20 +142,7 @@ export default class PostResolver {
                 };
             }
 
-            _.extend(post, {
-                active: false,
-            });
-
-            await Post.update(
-                {
-                    id,
-                    owner,
-                    active: true,
-                },
-                {
-                    active: false,
-                }
-            );
+            await Post.softRemove(post);
 
             return {
                 code: 200,
