@@ -25,7 +25,7 @@ export default class AuthResolver {
             }
 
             const existingUser = await User.findOne({
-                where: [{ username, active: true }, { email }],
+                where: [{ username }, { email }],
             });
 
             if (existingUser) {
@@ -78,7 +78,7 @@ export default class AuthResolver {
             }
 
             const existingUser = await User.findOne({
-                where: [{ username: usernameOrEmail, active: true }, { email: usernameOrEmail }],
+                where: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
             });
 
             if (!existingUser || !(await argon2.verify(existingUser.password, password))) {
