@@ -1,3 +1,4 @@
+import { Ctx, FieldResolver, Query, Resolver, Root, UseMiddleware } from 'type-graphql';
 import {
     Follow,
     Post,
@@ -12,11 +13,10 @@ import {
     PostShareLike,
     PostShareReplyComment,
     PostShareReplyCommentLike,
-    User,
-} from '@Entities';
-import { Authentication } from '@Middlewares/Auth.middleware';
-import { Context } from '@Types';
-import { Ctx, FieldResolver, Query, Resolver, Root, UseMiddleware } from 'type-graphql';
+    User
+} from '../../Entities';
+import { Authentication } from '../../Middlewares/Auth.middleware';
+import { Context } from '../../Types';
 
 @Resolver(() => User)
 export default class UserResolver {

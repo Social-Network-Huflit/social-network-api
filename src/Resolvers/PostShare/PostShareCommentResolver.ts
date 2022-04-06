@@ -4,7 +4,7 @@ import {
     PostShareCommentLike,
     PostShareReplyComment,
     User,
-} from '@Entities';
+} from '../../Entities';
 import { FieldResolver, Resolver, Root } from 'type-graphql';
 
 @Resolver(() => PostShareComment)

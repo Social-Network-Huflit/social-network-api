@@ -1,11 +1,11 @@
-import { Logger } from '@Configs';
-import { COOKIES_NAME } from '@Constants/index';
-import { User } from '@Entities';
-import { AUTH } from '@Language';
-import { Context, LoginInput, RegisterInput, ServerInternal, UserMutationResponse } from '@Types';
-import ValidateInput from '@Utils/Validation';
 import argon2 from 'argon2';
 import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
+import { Logger } from '../../Configs';
+import { COOKIES_NAME } from '../../Constants';
+import { User } from '../../Entities';
+import { AUTH } from '../../languages/i18n';
+import { Context, LoginInput, RegisterInput, ServerInternal, UserMutationResponse } from '../../Types';
+import ValidateInput from '../../Utils/Validation';
 
 @Resolver()
 export default class AuthResolver {
@@ -25,10 +25,7 @@ export default class AuthResolver {
             }
 
             const existingUser = await User.findOne({
-                where: [
-                    { username, active: true },
-                    { email },
-                ],
+                where: [{ username, active: true }, { email }],
             });
 
             if (existingUser) {
@@ -81,10 +78,7 @@ export default class AuthResolver {
             }
 
             const existingUser = await User.findOne({
-                where: [
-                    { username: usernameOrEmail, active: true },
-                    { email: usernameOrEmail },
-                ],
+                where: [{ username: usernameOrEmail, active: true }, { email: usernameOrEmail }],
             });
 
             if (!existingUser || !(await argon2.verify(existingUser.password, password))) {

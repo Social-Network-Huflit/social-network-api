@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import i18n from 'i18n';
 import { MiddlewareFn } from 'type-graphql';
-import { Context } from '@Types';
+import { Context } from '../Types';
 
 //Change language by locale from query
 const LocaleMiddleware: MiddlewareFn<Context> = ({ context: { req } }, next) => {

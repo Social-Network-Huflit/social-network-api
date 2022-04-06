@@ -1,4 +1,4 @@
-import { PostShare, PostShareLike, User } from "@Entities";
+import { PostShare, PostShareLike, User } from "../../Entities";
 import { FieldResolver, Resolver, Root } from "type-graphql";
 
 @Resolver(() => PostShareLike)

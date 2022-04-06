@@ -1,18 +1,17 @@
-import { Logger } from '@Configs';
-import { Post, PostShare, PostShareComment, PostShareLike, User } from '@Entities';
-import { POST, POST_SHARE } from '@Language';
-import { Authentication } from '@Middlewares/Auth.middleware';
+import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
+import { Logger } from '../../Configs';
+import { Post, PostShare, PostShareComment, PostShareLike, User } from '../../Entities';
+import { POST, POST_SHARE } from '../../languages/i18n';
+import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     Context,
     CreatePostShareInput,
     PostShareMutationResponse,
     ServerInternal,
-    UpdatePostShareInput,
-} from '@Types';
-import UpdateEntity from '@Utils/UpdateEntity';
-import ValidateInput from '@Utils/Validation';
-import _ from 'lodash';
-import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
+    UpdatePostShareInput
+} from '../../Types';
+import UpdateEntity from '../../Utils/UpdateEntity';
+import ValidateInput from '../../Utils/Validation';
 
 @Resolver(() => PostShare)
 export default class PostShareResolver {

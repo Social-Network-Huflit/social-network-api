@@ -1,13 +1,13 @@
-import { __prod__ } from '@Constants/index';
-import { entities } from '@Entities';
 import { createConnection } from 'typeorm';
+import { __prod__ } from '../Constants';
+import { entities } from '../Entities';
 
 export default async function connectTypeorm() {
     await createConnection({
         type: !__prod__ ? 'mysql' : 'postgres',
-        username: process.env.TYPEORM_USERNAME,
-        password: process.env.TYPEORM_PASSWORD,
-        database: process.env.TYPEORM_DATABASE,
+        username: !__prod__ ? process.env.TYPEORM_USERNAME : undefined,
+        password: !__prod__ ? process.env.TYPEORM_PASSWORD : undefined,
+        database: !__prod__ ? process.env.TYPEORM_DATABASE : undefined,
         url: __prod__ ? process.env.TYPEORM_URL : undefined,
         synchronize: !__prod__,
         logging: !__prod__,

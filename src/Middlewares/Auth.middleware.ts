@@ -1,4 +1,4 @@
-import { Context } from '@Types';
+import { Context } from '../Types';
 import { AuthenticationError } from 'apollo-server-core';
 import { MiddlewareFn } from 'type-graphql';
 

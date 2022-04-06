@@ -1,4 +1,5 @@
-import { Logger } from '@Configs';
+import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from 'type-graphql';
+import { Logger } from '../../Configs';
 import {
     Post,
     PostComment,
@@ -7,9 +8,9 @@ import {
     PostReplyComment,
     PostReplyCommentLike,
     User
-} from '@Entities';
-import { POST } from '@Language';
-import { Authentication } from '@Middlewares/Auth.middleware';
+} from '../../Entities';
+import { POST } from '../../languages/i18n';
+import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     CommentMutationResponse,
     Context,
@@ -19,10 +20,9 @@ import {
     ReplyCommentPostInput,
     ServerInternal,
     UpdateCommentPostInput
-} from '@Types';
-import UpdateEntity from '@Utils/UpdateEntity';
-import ValidateInput from '@Utils/Validation';
-import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from 'type-graphql';
+} from '../../Types';
+import UpdateEntity from '../../Utils/UpdateEntity';
+import ValidateInput from '../../Utils/Validation';
 
 @Resolver()
 export default class InteractPostResolver {
@@ -149,7 +149,7 @@ export default class InteractPostResolver {
             }
 
             const updatedComment = await UpdateEntity(PostComment, comment, updateCommentInput);
-            
+
             return {
                 code: 200,
                 success: true,

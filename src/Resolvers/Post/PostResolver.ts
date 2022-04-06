@@ -1,16 +1,16 @@
-import { Logger } from '@Configs';
-import { Post, PostComment, PostLike, PostShare, User } from '@Entities';
-import { POST } from '@Language';
-import { Authentication } from '@Middlewares/Auth.middleware';
+import { Logger } from '../../Configs';
+import { Post, PostComment, PostLike, PostShare, User } from '../../Entities';
+import { POST } from '../../languages/i18n';
+import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     Context,
     CreatePostInput,
     PostMutationResponse,
     ServerInternal,
     UpdatePostInput,
-} from '@Types';
-import UpdateEntity from '@Utils/UpdateEntity';
-import ValidateInput from '@Utils/Validation';
+} from '../../Types';
+import UpdateEntity from '../../Utils/UpdateEntity';
+import ValidateInput from '../../Utils/Validation';
 import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
 
 @Resolver(() => Post)

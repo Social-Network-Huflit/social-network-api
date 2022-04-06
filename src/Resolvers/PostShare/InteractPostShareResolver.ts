@@ -1,4 +1,5 @@
-import { Logger } from '@Configs';
+import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from 'type-graphql';
+import { Logger } from '../../Configs';
 import {
     PostShare,
     PostShareComment,
@@ -7,9 +8,9 @@ import {
     PostShareReplyComment,
     PostShareReplyCommentLike,
     User
-} from '@Entities';
-import { POST } from '@Language';
-import { Authentication } from '@Middlewares/Auth.middleware';
+} from '../../Entities';
+import { POST } from '../../languages/i18n';
+import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     CommentPostShareMutationResponse,
     Context,
@@ -19,10 +20,9 @@ import {
     ReplyCommentPostShareMutationResponse,
     ServerInternal,
     UpdateCommentPostShareInput
-} from '@Types';
-import UpdateEntity from '@Utils/UpdateEntity';
-import ValidateInput from '@Utils/Validation';
-import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from 'type-graphql';
+} from '../../Types';
+import UpdateEntity from '../../Utils/UpdateEntity';
+import ValidateInput from '../../Utils/Validation';
 
 @Resolver()
 export default class InteractPostShareResolver {
@@ -148,7 +148,11 @@ export default class InteractPostShareResolver {
                 };
             }
 
-            const updatedComment = await UpdateEntity(PostShareComment, comment, updateCommentInput);
+            const updatedComment = await UpdateEntity(
+                PostShareComment,
+                comment,
+                updateCommentInput
+            );
 
             return {
                 code: 200,

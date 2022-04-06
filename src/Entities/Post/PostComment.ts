@@ -12,7 +12,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { User, Post, PostCommentLike, PostReplyComment } from '@Entities';
+import { User, Post, PostCommentLike, PostReplyComment } from '..';
 
 @Entity({ name: 'post_comment' })
 @ObjectType()

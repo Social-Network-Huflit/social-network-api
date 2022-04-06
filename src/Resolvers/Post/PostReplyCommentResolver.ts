@@ -1,4 +1,4 @@
-import { PostComment, PostReplyCommentLike, User } from '@Entities';
+import { PostComment, PostReplyCommentLike, User } from '../../Entities';
 import { FieldResolver, Resolver, Root } from 'type-graphql';
 import PostReplyComment from '../../Entities/Post/PostReplyComment';
 

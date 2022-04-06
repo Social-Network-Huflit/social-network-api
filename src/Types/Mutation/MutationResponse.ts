@@ -1,5 +1,5 @@
-import { Post, PostComment, PostReplyComment, PostShare, PostShareComment, User } from '@Entities';
-import { FieldError } from '@Types';
+import { Post, PostComment, PostReplyComment, PostShare, PostShareComment, User } from '../../Entities';
+import { FieldError } from '..';
 import { ClassType, Field, ObjectType } from 'type-graphql';
 
 @ObjectType()

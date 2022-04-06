@@ -1,5 +1,5 @@
-import { MONGO_DB_URL, __prod__ } from '@Constants/index';
 import mongoose from 'mongoose';
+import { MONGO_DB_URL } from '../Constants';
 import Logger from './Logger';
 
 export default async function connectDB() {

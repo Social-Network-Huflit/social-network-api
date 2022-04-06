@@ -1,4 +1,4 @@
-import { Post, User } from '@Entities';
+import { Post, User } from '../../Entities';
 import { FieldResolver, Resolver, Root } from 'type-graphql';
 import PostLike from '../../Entities/Post/PostLike';
 

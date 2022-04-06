@@ -2,7 +2,7 @@ require('reflect-metadata');
 require('dotenv').config();
 require('module-alias/register');
 
-import { ApolloServerExpress, app, connectDB, connectTypeorm, Logger } from '@Configs';
+import { ApolloServerExpress, app, connectDB, connectTypeorm, Logger } from './Configs';
 
 const main = async () => {
     const PORT = process.env.PORT || 4000;

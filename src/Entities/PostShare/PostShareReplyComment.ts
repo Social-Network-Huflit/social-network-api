@@ -11,7 +11,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { PostShareComment, PostShareReplyCommentLike, User } from '@Entities';
+import { PostShareComment, PostShareReplyCommentLike, User } from '..';
 
 @Entity({ name: 'post_share_reply_comment' })
 @ObjectType()

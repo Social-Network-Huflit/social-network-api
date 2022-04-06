@@ -48,15 +48,5 @@
         "nodemon": "^2.0.15",
         "ts-node": "^10.5.0",
         "typescript": "^4.5.5"
-    },
-    "_moduleAliases": {
-        "@Entities": "./src/Entities",
-        "@Configs": "./src/Configs",
-        "@Constants": "./src/Constants",
-        "@Middlewares": "./src/Middlewares",
-        "@Resolvers": "./src/Resolvers",
-        "@Types": "./src/Types",
-        "@Utils": "./src/Utils",
-        "@Language": "./src/languages/i18n"
     }
 }

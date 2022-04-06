@@ -23,9 +23,9 @@ import {
     PostShareLike,
     PostShareReplyComment,
     PostShareReplyCommentLike,
-} from '@Entities';
-import { DEFAULT_AVATAR } from '@Constants/index';
-import { Request } from '@Types';
+} from '..';
+import { DEFAULT_AVATAR } from '../../Constants';
+import { Request } from '../../Types';
 import { AuthenticationError } from 'apollo-server-core';
 import i18n from 'i18n';
 

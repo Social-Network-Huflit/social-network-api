@@ -10,7 +10,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { PostComment, User } from '@Entities';
+import { PostComment, User } from '..';
 
 @Entity({ name: 'post_comment_like' })
 @ObjectType()

@@ -1,4 +1,4 @@
-import { FieldError } from "@Types";
+import { FieldError } from "../Types";
 import { ValidationError } from "class-validator";
 
 //Custom error from class-validator

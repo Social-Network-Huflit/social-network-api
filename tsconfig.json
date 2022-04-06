@@ -10,16 +10,6 @@
         "forceConsistentCasingInFileNames": true,
         "strict": true,
         "strictPropertyInitialization": false,
-        "skipLibCheck": true,
-        "paths": {
-            "@Entities": ["./src/Entities/index"],
-            "@Configs": ["./src/Configs/index"],
-            "@Constants/*": ["./src/Constants/*"],
-            "@Middlewares/*": ["./src/Middlewares/*"],
-            "@Resolvers": ["./src/Resolvers/index"],
-            "@Types": ["./src/Types/index"],
-            "@Utils/*": ["./src/Utils/*"],
-            "@Language": ["./src/languages/i18n/index"]
-        }
+        "skipLibCheck": true
     }
 }

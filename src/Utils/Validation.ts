@@ -1,4 +1,4 @@
-import { IMutationResponse, Request } from '@Types';
+import { IMutationResponse, Request } from '../Types';
 import { Validator } from 'class-validator-multi-lang';
 import MapErrorValidator from './MapFieldError';
 

@@ -1,4 +1,3 @@
-import { User } from '@Entities';
 import { ObjectType } from 'type-graphql';
 import {
     BaseEntity,
@@ -11,6 +10,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
+import { User } from '..';
 
 @Entity()
 export default class Follow extends BaseEntity {
