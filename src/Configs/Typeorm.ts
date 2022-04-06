@@ -10,7 +10,7 @@ export default async function connectTypeorm() {
         database: !__prod__ ? process.env.TYPEORM_DATABASE : undefined,
         url: __prod__ ? process.env.TYPEORM_URL : undefined,
         synchronize: true,
-        logging: !__prod__,
+        logging: true,
         entities,
     });
 }
