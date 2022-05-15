@@ -6,6 +6,7 @@ export {default as FieldError} from './Mutation/FieldError';
 export * from './InputType/AuthInput'
 export * from './InputType/PostInput'
 export * from './InputType/PostShareInput'
+export * from './InputType/RoomInput'
 
 //Errors
 export {default as ServerInternal} from './Errors/ServerInternal'

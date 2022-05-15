@@ -5,12 +5,15 @@ import {
     CreateDateColumn,
     DeleteDateColumn,
     Entity,
+    JoinTable,
+    ManyToMany,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
 import {
     Follow,
+    Message,
     Post,
     PostComment,
     PostCommentLike,
@@ -23,6 +26,7 @@ import {
     PostShareLike,
     PostShareReplyComment,
     PostShareReplyCommentLike,
+    Room,
 } from '..';
 import { DEFAULT_AVATAR } from '../../Constants';
 import { Request } from '../../Types';
@@ -117,6 +121,25 @@ export default class User extends BaseEntity {
     @Field(() => [User])
     @OneToMany(() => Follow, (follow) => follow.following)
     followers: User[];
+
+    @ManyToMany(() => Room, (room) => room.members)
+    @JoinTable({
+        name: 'room_members',
+    })
+    @Field(() => [Room])
+    rooms: Promise<Room[]>;
+
+    @OneToMany(() => Message, (message) => message.sender)
+    sent_messages: Message[];
+
+    @OneToMany(() => Message, (message) => message.sender)
+    received_messages: Message[];
+
+    @ManyToMany(() => Message, (message) => message.seen)
+    @JoinTable({
+        name: 'seen_message',
+    })
+    seen_messages: Promise<Message[]>;
 
     @Field()
     @CreateDateColumn()

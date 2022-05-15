@@ -2,16 +2,16 @@ require('reflect-metadata');
 require('dotenv').config();
 require('module-alias/register');
 
-import { ApolloServerExpress, app, connectDB, connectTypeorm, Logger } from './Configs';
+import { ApolloServerExpress, connectDB, connectTypeorm, Logger } from './Configs';
 
 const main = async () => {
     const PORT = process.env.PORT || 4000;
 
     await connectDB();
     await connectTypeorm();
-    const apolloServer = await ApolloServerExpress(app);
+    const { apolloServer, httpServer } = await ApolloServerExpress();
 
-    app.listen(PORT, () =>
+    httpServer.listen(PORT, () =>
         Logger.success(`Server is running on: http://localhost:${PORT}${apolloServer.graphqlPath}`)
     );
 };

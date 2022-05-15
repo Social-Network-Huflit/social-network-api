@@ -1,5 +1,6 @@
 import { Request as ExpressRequest, Response } from 'express';
 import { Session, SessionData } from 'express-session';
+import { PubSub } from 'graphql-subscriptions';
 
 export type Request = ExpressRequest & {
     session: Session &

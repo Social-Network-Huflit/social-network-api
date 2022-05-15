@@ -1,4 +1,4 @@
-import { Ctx, FieldResolver, Query, Resolver, Root, UseMiddleware } from 'type-graphql';
+import { Ctx, Field, FieldResolver, Query, Resolver, Root, UseMiddleware } from 'type-graphql';
 import {
     Follow,
     Post,
@@ -13,7 +13,8 @@ import {
     PostShareLike,
     PostShareReplyComment,
     PostShareReplyCommentLike,
-    User
+    Room,
+    User,
 } from '../../Entities';
 import { Authentication } from '../../Middlewares/Auth.middleware';
 import { Context } from '../../Types';
@@ -134,6 +135,12 @@ export default class UserResolver {
         });
 
         return follows.map((follow) => follow.followers);
+    }
+
+    //rooms
+    @FieldResolver(() => [Room])
+    async rooms(@Root() user: User): Promise<Room[]> {
+        return await user.rooms;
     }
 
     //Get My user

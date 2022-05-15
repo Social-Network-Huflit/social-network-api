@@ -15,6 +15,8 @@ import PostShareCommentResolver from './PostShare/PostShareCommentResolver';
 import PostShareCommentLikeResolver from './PostShare/PostShareCommentLikeResolver';
 import PostShareReplyCommentResolver from './PostShare/PostShareReplyCommentResolver';
 import PostShareReplyCommentLikeResolver from './PostShare/PostShareReplyCommentLikeResolver';
+import MessageResolver from './Chat/MessageResolver';
+import RoomResolver from './Chat/RoomResolver';
 
 const resolvers: NonEmptyArray<Function> = [
     AuthResolver,
@@ -33,6 +35,8 @@ const resolvers: NonEmptyArray<Function> = [
     PostShareReplyCommentLikeResolver,
     InteractPostResolver,
     InteractPostShareResolver,
+    MessageResolver,
+    RoomResolver
 ];
 
 export default resolvers;

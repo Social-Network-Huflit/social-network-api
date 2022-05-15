@@ -1,25 +1,48 @@
 import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-express';
-import { Express } from 'express';
-import { buildSchema } from 'type-graphql';
-import LocaleMiddleware from '../Middlewares/Locale.middleware';
-import resolvers from '../Resolvers';
+import { execute, subscribe } from 'graphql';
+import { createServer } from 'http';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
+import { app } from '.';
 import { Context } from '../Types';
+import ApolloSchema from './Schema';
 
-export default async function ApolloServerExpress(app: Express){
+export default async function ApolloServerExpress() {
+    const httpServer = createServer(app);
+    const schema = await ApolloSchema();
+
+    const subscriptionsServer = SubscriptionServer.create(
+        {
+            schema,
+            subscribe,
+            execute,
+        },
+        {
+            server: httpServer,
+            path: '/graphql',
+        }
+    );
+
     const apolloServer = new ApolloServer({
-        schema: await buildSchema({
-            resolvers,
-            globalMiddlewares: [LocaleMiddleware],
-            validate: false
-        }),
-        plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+        schema,
         context: ({ req, res }): Context => ({ req, res }),
+        plugins: [
+            ApolloServerPluginLandingPageGraphQLPlayground(),
+            {
+                async serverWillStart() {
+                    return {
+                        async drainServer() {
+                            subscriptionsServer.close();
+                        },
+                    };
+                },
+            },
+        ],
     });
 
     await apolloServer.start();
 
     apolloServer.applyMiddleware({ app, cors: false });
 
-    return apolloServer;
+    return { apolloServer, httpServer };
 }
