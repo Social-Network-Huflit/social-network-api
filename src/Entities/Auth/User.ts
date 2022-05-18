@@ -31,7 +31,7 @@ import {
 import { DEFAULT_AVATAR } from '../../Constants';
 import { Request } from '../../Types';
 import { AuthenticationError } from 'apollo-server-core';
-import i18n from 'i18n';
+import { AUTH } from '../../languages/i18n';
 
 @ObjectType()
 @Entity({ name: 'user' })
@@ -158,7 +158,7 @@ export default class User extends BaseEntity {
         });
 
         if (!user) {
-            throw new AuthenticationError(i18n.__('AUTH.FIND_USER_FAIL'));
+            throw new AuthenticationError(AUTH.FIND_USER_FAIL);
         }
 
         return user;

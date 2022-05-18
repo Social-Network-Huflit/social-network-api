@@ -1,4 +1,4 @@
-import { Post, PostComment, PostReplyComment, PostShare, PostShareComment, User } from '../../Entities';
+import { Message, Post, PostComment, PostReplyComment, PostShare, PostShareComment, User } from '../../Entities';
 import { FieldError } from '..';
 import { ClassType, Field, ObjectType } from 'type-graphql';
 
@@ -57,3 +57,6 @@ export class CommentPostShareMutationResponse extends MutationResponse(PostShare
 
 @ObjectType()
 export class ReplyCommentPostShareMutationResponse extends MutationResponse(PostReplyComment, "reply_comment"){}
+
+@ObjectType()
+export class MessageMutationResponse extends MutationResponse(Message, "chat_message"){}

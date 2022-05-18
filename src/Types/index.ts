@@ -7,6 +7,7 @@ export * from './InputType/AuthInput'
 export * from './InputType/PostInput'
 export * from './InputType/PostShareInput'
 export * from './InputType/RoomInput'
+export * from './InputType/ChatInput'
 
 //Errors
 export {default as ServerInternal} from './Errors/ServerInternal'

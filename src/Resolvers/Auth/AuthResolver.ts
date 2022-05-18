@@ -4,7 +4,13 @@ import { Logger } from '../../Configs';
 import { COOKIES_NAME } from '../../Constants';
 import { User } from '../../Entities';
 import { AUTH } from '../../languages/i18n';
-import { Context, LoginInput, RegisterInput, ServerInternal, UserMutationResponse } from '../../Types';
+import {
+    Context,
+    LoginInput,
+    RegisterInput,
+    ServerInternal,
+    UserMutationResponse,
+} from '../../Types';
 import ValidateInput from '../../Utils/Validation';
 
 @Resolver()
@@ -15,7 +21,7 @@ export default class AuthResolver {
         @Arg('registerInput') registerInput: RegisterInput,
         @Ctx() { req }: Context
     ): Promise<UserMutationResponse> {
-        const { username, email, password } = registerInput;
+        const { username, email, password, phoneNumber } = registerInput;
 
         try {
             const validate = await ValidateInput(req, registerInput);
@@ -25,20 +31,25 @@ export default class AuthResolver {
             }
 
             const existingUser = await User.findOne({
-                where: [{ username }, { email }],
+                where: [{ username }, { email }, { phoneNumber }],
             });
 
             if (existingUser) {
+                let field =
+                    existingUser.username === username
+                        ? 'username'
+                        : existingUser.email === email
+                        ? 'email'
+                        : 'phoneNumber';
+
                 return {
                     code: 400,
                     message: AUTH.REGISTER.DUPLICATE,
                     success: false,
                     errors: [
                         {
-                            field: existingUser.username === username ? 'username' : 'email',
-                            message: `${
-                                existingUser.username === username ? 'Username' : 'Email'
-                            } ${AUTH.REGISTER.EXIST}`,
+                            field,
+                            message: `${field.toUpperCase()} already exist`,
                         },
                     ],
                 };
@@ -70,6 +81,15 @@ export default class AuthResolver {
         @Ctx() { req }: Context
     ): Promise<UserMutationResponse> {
         const { usernameOrEmail, password } = loginInput;
+
+        if (req.session.userId) {
+            return {
+                code: 400,
+                success: false,
+                message: 'You have to logout first',
+            };
+        }
+
         try {
             const validate = await ValidateInput(req, loginInput);
 
