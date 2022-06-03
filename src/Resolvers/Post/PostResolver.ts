@@ -1,6 +1,17 @@
+import i18n from 'i18n';
+import {
+    Arg,
+    Ctx,
+    FieldResolver,
+    ID,
+    Mutation,
+    Query,
+    Resolver,
+    Root,
+    UseMiddleware,
+} from 'type-graphql';
 import { Logger } from '../../Configs';
-import { Post, PostComment, PostLike, PostShare, User } from '../../Entities';
-import { POST } from '../../languages/i18n';
+import { Follow, Post, PostComment, PostLike, PostShare, User } from '../../Entities';
 import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     Context,
@@ -11,10 +22,65 @@ import {
 } from '../../Types';
 import UpdateEntity from '../../Utils/UpdateEntity';
 import ValidateInput from '../../Utils/Validation';
-import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
+import moment from 'moment';
+import shuffleArray from '../../Utils/ShuffleArray';
 
 @Resolver(() => Post)
 export default class PostResolver {
+    //liked
+    @FieldResolver(() => Boolean)
+    async liked(@Root() root: Post, @Ctx() { req }: Context): Promise<boolean> {
+        const user = await User.getMyUser(req);
+
+        const like = await PostLike.findOne({
+            user_id: user.id,
+            post_id: root.id,
+        });
+
+        return like !== undefined;
+    }
+
+    //like_type
+    @FieldResolver(() => String, { nullable: true })
+    async like_type(@Root() root: Post, @Ctx() { req }: Context): Promise<string | null> {
+        const user = await User.getMyUser(req);
+
+        const like = await PostLike.findOne({
+            user_id: user.id,
+            post_id: root.id,
+        });
+
+        if (!like) {
+            return null;
+        }
+
+        return like.like_type;
+    }
+
+    //post_type
+    @FieldResolver(() => String)
+    post_type(@Root() root: Post): 'text' | 'images' | 'video' | 'youtube' {
+        if (root.image_link) {
+            return 'images';
+        }
+
+        if (root.video_link) {
+            return 'video';
+        }
+
+        if (root.youtube_link) {
+            return 'youtube';
+        }
+
+        return 'text';
+    }
+
+    //timestamp
+    @FieldResolver(() => String)
+    timestamp(@Root() post: Post): string {
+        return moment(post.createdAt).fromNow();
+    }
+
     //owner
     @FieldResolver(() => User, { nullable: true })
     async owner(@Root() root: Post) {
@@ -27,24 +93,56 @@ export default class PostResolver {
     @FieldResolver(() => [PostLike])
     async likes(@Root() root: Post): Promise<PostLike[]> {
         return await PostLike.find({
-            post_id: root.id,
+            where: { post_id: root.id },
+            order: {
+                createdAt: 'DESC',
+            },
         });
+    }
+
+    //like_count
+    @FieldResolver(() => Number)
+    async like_count(@Root() root: Post): Promise<number> {
+        return (await this.likes(root)).length;
     }
 
     //comments
     @FieldResolver(() => [PostComment])
     async comments(@Root() root: Post): Promise<PostComment[]> {
         return await PostComment.find({
-            post_id: root.id,
+            where: { post_id: root.id },
+            order: {
+                createdAt: 'DESC',
+            },
         });
+    }
+
+    //comment_count
+    @FieldResolver(() => Number)
+    async comment_count(@Root() root: Post): Promise<number> {
+        return (await this.comments(root)).length;
     }
 
     //shares
     @FieldResolver(() => [PostShare])
     async shares(@Root() root: Post): Promise<PostShare[]> {
         return await PostShare.find({
-            post_id: root.id,
+            where: { post_id: root.id },
+            order: {
+                createdAt: 'DESC',
+            },
         });
+    }
+
+    //share_count
+    @FieldResolver(() => Number)
+    async share_count(@Root() root: Post): Promise<number> {
+        return (await this.shares(root)).length;
+    }
+
+    @Query(() => Post, { nullable: true })
+    async getPost(@Arg('post_id', () => ID) post_id: number): Promise<Post | null | undefined> {
+        return await Post.findOne(post_id);
     }
 
     //Create Post
@@ -69,7 +167,7 @@ export default class PostResolver {
             return {
                 code: 200,
                 success: true,
-                message: POST.CREATE_POST_SUCCESS,
+                message: i18n.__('POST.CREATE_POST_SUCCESS'),
                 result: await newPost.save(),
             };
         } catch (error: any) {
@@ -101,7 +199,7 @@ export default class PostResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__('POST.FIND_POST_FAIL'),
                 };
             }
 
@@ -110,7 +208,7 @@ export default class PostResolver {
             return {
                 code: 200,
                 success: true,
-                message: POST.UPDATE_POST_SUCCESS,
+                message: i18n.__('POST.UPDATE_POST_SUCCESS'),
                 result: updatedPost,
             };
         } catch (error: any) {
@@ -138,7 +236,7 @@ export default class PostResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__('POST.FIND_POST_FAIL'),
                 };
             }
 
@@ -147,11 +245,46 @@ export default class PostResolver {
             return {
                 code: 200,
                 success: true,
-                message: POST.DELETE_POST_SUCCESS,
+                message: i18n.__('POST.DELETE_POST_SUCCESS'),
             };
         } catch (error: any) {
             Logger.error(error);
             throw new ServerInternal(error.message);
         }
+    }
+
+    @UseMiddleware(Authentication)
+    @Query(() => [Post])
+    async getPosts(@Ctx() { req }: Context): Promise<Post[]> {
+        const result: Post[] = [];
+
+        const user = await User.getMyUser(req);
+
+        const myPost = await Post.find({
+            user_id: user.id,
+        });
+
+        result.push(...myPost);
+
+        const followings = await Follow.find({
+            user_1: user.id,
+        });
+
+        for (let i = 0; i < followings.length; i++) {
+            const element = followings[i];
+
+            const post = await Post.find({
+                where: { user_id: element.user_2 },
+                order: {
+                    createdAt: 'DESC',
+                },
+            });
+
+            if (post) {
+                result.push(...post);
+            }
+        }
+        console.log('hahah');
+        return result;
     }
 }

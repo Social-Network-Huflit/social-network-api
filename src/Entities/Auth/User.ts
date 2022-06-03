@@ -31,7 +31,9 @@ import {
 import { DEFAULT_AVATAR } from '../../Constants';
 import { Request } from '../../Types';
 import { AuthenticationError } from 'apollo-server-core';
-import { AUTH } from '../../languages/i18n';
+import i18n from 'i18n';
+import jwt from 'jsonwebtoken'
+import { Logger } from '../../Configs';
 
 @ObjectType()
 @Entity({ name: 'user' })
@@ -153,12 +155,30 @@ export default class User extends BaseEntity {
     deletedAt: Date;
 
     public static async getMyUser(req: Request): Promise<User> {
+        let userId = req.session.userId;
+
+        if (req.device?.type === "phone"){
+            const bearerToken = req.headers.authorization;
+
+        const token = bearerToken?.replace('Bearer ', '');
+
+        if (token) {
+            jwt.verify(token, process.env.JWT_SECRET as string, (err, decode: any) => {
+                if (err) {
+                    Logger.error(err);
+                } else {
+                    userId = decode.id;
+                }
+            });
+        }
+        }
+
         const user = await User.findOne({
-            id: req.session.userId,
+            where: {id: userId}
         });
 
         if (!user) {
-            throw new AuthenticationError(AUTH.FIND_USER_FAIL);
+            throw new AuthenticationError(i18n.__("AUTH.FIND_USER_FAIL"));
         }
 
         return user;

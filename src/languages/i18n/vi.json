@@ -1,37 +1,42 @@
 {
-    "BAD_REQUEST": "BAD_REQUEST",
-    "AUTH": {
-        "REGISTER": {
-            "DUPLICATE": "DUPLICATE",
-            "EXIST": "EXIST",
-            "SUCCESS": "SUCCESS"
-        },
-        "LOGIN": {
-            "INVALID": {
-                "INDEX": "INDEX",
-                "USERNAME_EMAIL": "USERNAME_EMAIL",
-                "PASSWORD": "PASSWORD"
-            },
-            "SUCCESS": "SUCCESS"
-        }
-    },
-    "POST": {
-        "CREATE_POST_SUCCESS": "CREATE_POST_SUCCESS",
-        "FIND_POST_FAIL": "FIND_POST_FAIL",
-        "UPDATE_POST_SUCCESS": "UPDATE_POST_SUCCESS",
-        "DELETE_POST_SUCCESS": "DELETE_POST_SUCCESS",
-        "LIKE_POST_SUCCESS": "LIKE_POST_SUCCESS",
-        "UNLIKE_POST_SUCCESS": "UNLIKE_POST_SUCCESS",
-        "COMMENT_POST_SUCCESS": "COMMENT_POST_SUCCESS",
-        "FIND_COMMENT_FAIL": "FIND_COMMENT_FAIL",
-        "UPDATE_COMMENT_SUCCESS": "UPDATE_COMMENT_SUCCESS",
-        "DELETE_COMMENT_POST_SUCCESS": "DELETE_COMMENT_POST_SUCCESS",
-        "DELETE_COMMENT_POST_FAIL": "DELETE_COMMENT_POST_FAIL",
-        "LIKE_COMMENT_SUCCESS": "LIKE_COMMENT_SUCCESS",
-        "UNLIKE_COMMENT_SUCCESS": "UNLIKE_COMMENT_SUCCESS",
-        "REPLY_COMMENT_SUCCESS": "REPLY_COMMENT_SUCCESS"
-    },
-    "POST_SHARE": {
-        "CREATE_POST_SHARE_SUCCESS": "CREATE_POST_SHARE_SUCCESS"
-    }
+	"BAD_REQUEST": "BAD_REQUEST",
+	"AUTH": {
+		"FIND_USER_FAIL": "Không tìm thấy người dùng",
+		"REGISTER": {
+			"DUPLICATE": "Username hoặc email hoặc số điện thoại đã tồn tại",
+			"EXIST": "Tài khoản đã tồn tại",
+			"SUCCESS": "Đăng ký thành công"
+		},
+		"LOGIN": {
+			"INVALID": {
+				"INDEX": "Username hoặc email hoặc mật khẩu không đúng",
+				"USERNAME_EMAIL": "Username hoặc email không đúng",
+				"PASSWORD": "Password không đúng"
+			},
+			"SUCCESS": "Đăng nhập thành công"
+		}
+	},
+	"POST": {
+		"CREATE_POST_SUCCESS": "Đăng bài viết thành công",
+		"FIND_POST_FAIL": "Không thể tìm thấy bài viết",
+		"UPDATE_POST_SUCCESS": "Cập nhật bài viết thành công",
+		"DELETE_POST_SUCCESS": "Xóa bài viết thành công",
+		"LIKE_POST_SUCCESS": "Thích bài viết thành công",
+		"UNLIKE_POST_SUCCESS": "Xóa thích bài viết thành công",
+		"COMMENT_POST_SUCCESS": "Bình luận thành công",
+		"FIND_COMMENT_FAIL": "Không thể tìm thấy bình luận",
+		"UPDATE_COMMENT_SUCCESS": "Cập nhật bình luận thành công",
+		"DELETE_COMMENT_POST_SUCCESS": "Xóa bình luận thành công",
+		"DELETE_COMMENT_POST_FAIL": "Xóa bình luận thất bại",
+		"LIKE_COMMENT_SUCCESS": "Thích bình luận thành công",
+		"UNLIKE_COMMENT_SUCCESS": "Xóa thích bình luận thành công",
+		"REPLY_COMMENT_SUCCESS": "Phản hồi bình luận thành công"
+	},
+	"POST_SHARE": {
+		"CREATE_POST_SHARE_SUCCESS": "Chia sẻ bài viết thành công"
+	},
+	"USER": {
+		"FOLLOW_FAIL": "USER.FOLLOW_FAIL",
+		"FOLLOW_SUCCESS": "USER.FOLLOW_SUCCESS"
+	}
 }

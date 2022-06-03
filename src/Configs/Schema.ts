@@ -1,19 +1,11 @@
-import { makeExecutableSchema } from '@graphql-tools/schema';
-import { buildSchema, buildTypeDefsAndResolvers } from 'type-graphql';
+import { buildSchema } from 'type-graphql';
 import LocaleMiddleware from '../Middlewares/Locale.middleware';
-import apolloResolvers from '../Resolvers';
+import resolvers from '../Resolvers';
 
 export default async function ApolloSchema() {
-    const { typeDefs, resolvers } = await buildTypeDefsAndResolvers({
-        resolvers: apolloResolvers,
+    return await buildSchema({
+        resolvers,
         globalMiddlewares: [LocaleMiddleware],
         validate: false,
     });
-
-    const schema = makeExecutableSchema({
-        typeDefs: [typeDefs],
-        resolvers: [resolvers],
-    });
-
-    return schema;
 }

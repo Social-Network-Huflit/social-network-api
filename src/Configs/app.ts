@@ -1,12 +1,21 @@
 import MongoStore from 'connect-mongo';
 import express from 'express';
 import session from 'express-session';
-import path from 'path';
+import path, { join } from 'path';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { COOKIES_NAME, MONGO_DB_URL, __prod__ } from '../Constants';
+import i18n from 'i18n';
 
 const device = require('express-device');
 const app = express();
+
+i18n.configure({
+    locales: ['en', 'vi'],
+    directory: path.join(__dirname, '../languages/i18n'),
+    defaultLocale: 'en',
+    register: global,
+    objectNotation: true,
+});
 
 app.use(
     session({
@@ -24,7 +33,9 @@ app.use(
     })
 );
 
+app.use(i18n.init);
 app.use(device.capture());
 app.use(graphqlUploadExpress());
+app.use(express.static(join(__dirname, "../public")))
 
 export default app;

@@ -1,7 +1,6 @@
 import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
 import { Logger } from '../../Configs';
 import { Post, PostShare, PostShareComment, PostShareLike, User } from '../../Entities';
-import { POST, POST_SHARE } from '../../languages/i18n';
 import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     Context,
@@ -12,6 +11,7 @@ import {
 } from '../../Types';
 import UpdateEntity from '../../Utils/UpdateEntity';
 import ValidateInput from '../../Utils/Validation';
+import i18n from 'i18n'
 
 @Resolver(() => PostShare)
 export default class PostShareResolver {
@@ -61,7 +61,7 @@ export default class PostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__("POST.FIND_POST_FAIL"),
                 };
             }
 
@@ -73,7 +73,7 @@ export default class PostShareResolver {
             return {
                 code: 200,
                 success: true,
-                message: POST_SHARE.CREATE_POST_SHARE_SUCCESS,
+                message: i18n.__("POST_SHARE.CREATE_POST_SHARE_SUCCESS"),
                 result: await newPostShare.save(),
             };
         } catch (error: any) {
@@ -105,7 +105,7 @@ export default class PostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__("POST.FIND_POST_FAIL"),
                 };
             }
 
@@ -114,7 +114,7 @@ export default class PostShareResolver {
             return {
                 code: 200,
                 success: true,
-                message: POST.UPDATE_POST_SUCCESS,
+                message: i18n.__("POST.UPDATE_POST_SUCCESS"),
                 result: updatedPost,
             };
         } catch (error: any) {
@@ -142,7 +142,7 @@ export default class PostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__("POST.FIND_POST_FAIL"),
                 };
             }
 
@@ -151,7 +151,7 @@ export default class PostShareResolver {
             return {
                 code: 200,
                 success: true,
-                message: POST.DELETE_POST_SUCCESS,
+                message: i18n.__("POST.DELETE_POST_SUCCESS"),
             };
         } catch (error: any) {
             Logger.error(error);

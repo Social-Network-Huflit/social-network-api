@@ -3,7 +3,6 @@ import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
 import { Logger } from '../../Configs';
 import { COOKIES_NAME } from '../../Constants';
 import { User } from '../../Entities';
-import { AUTH } from '../../languages/i18n';
 import {
     Context,
     LoginInput,
@@ -12,6 +11,9 @@ import {
     UserMutationResponse,
 } from '../../Types';
 import ValidateInput from '../../Utils/Validation';
+import jwt from 'jsonwebtoken';
+import CheckLogged from '../../Utils/CheckLogged';
+import i18n from 'i18n';
 
 @Resolver()
 export default class AuthResolver {
@@ -44,7 +46,7 @@ export default class AuthResolver {
 
                 return {
                     code: 400,
-                    message: AUTH.REGISTER.DUPLICATE,
+                    message: i18n.__('AUTH.REGISTER.DUPLICATE'),
                     success: false,
                     errors: [
                         {
@@ -65,7 +67,7 @@ export default class AuthResolver {
             return {
                 code: 201,
                 success: true,
-                message: AUTH.REGISTER.SUCCESS,
+                message: i18n.__('AUTH.REGISTER.SUCCESS'),
                 result: await newUser.save(),
             };
         } catch (error: any) {
@@ -82,7 +84,7 @@ export default class AuthResolver {
     ): Promise<UserMutationResponse> {
         const { usernameOrEmail, password } = loginInput;
 
-        if (req.session.userId) {
+        if (await CheckLogged(req)) {
             return {
                 code: 400,
                 success: false,
@@ -105,24 +107,42 @@ export default class AuthResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: AUTH.LOGIN.INVALID.INDEX,
+                    message: i18n.__('AUTH.LOGIN.INVALID.INDEX'),
                     errors: [
                         {
                             field: 'usernameOrEmail',
-                            message: AUTH.LOGIN.INVALID.USERNAME_EMAIL,
+                            message: i18n.__('AUTH.LOGIN.INVALID.USERNAME_EMAIL'),
                         },
-                        { field: 'password', message: AUTH.LOGIN.INVALID.PASSWORD },
+                        { field: 'password', message: i18n.__('AUTH.LOGIN.INVALID.PASSWORD') },
                     ],
                 };
             }
 
-            req.session.userId = existingUser.id;
+            if (req.device?.type === 'desktop') {
+                req.session.userId = existingUser.id;
 
-            return {
-                code: 200,
-                success: true,
-                message: AUTH.LOGIN.SUCCESS,
-            };
+                return {
+                    code: 200,
+                    success: true,
+                    message: i18n.__('AUTH.LOGIN.SUCCESS'),
+                    result: existingUser,
+                };
+            } else {
+                const token = jwt.sign(
+                    {
+                        id: existingUser.id,
+                    },
+                    process.env.JWT_SECRET as string
+                );
+
+                return {
+                    code: 200,
+                    success: true,
+                    message: i18n.__('AUTH.LOGIN.SUCCESS'),
+                    token: `Bearer ${token}`,
+                    result: existingUser,
+                };
+            }
         } catch (error: any) {
             Logger.error(error.message);
             throw new ServerInternal(error.message);

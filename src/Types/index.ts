@@ -1,6 +1,7 @@
 //Mutation
 export * from './Mutation/MutationResponse'
 export {default as FieldError} from './Mutation/FieldError';
+export {default as Upload} from './Upload';
 
 //Input Type
 export * from './InputType/AuthInput'

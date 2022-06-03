@@ -1,4 +1,12 @@
-import { Message, Post, PostComment, PostReplyComment, PostShare, PostShareComment, User } from '../../Entities';
+import {
+    Message,
+    Post,
+    PostComment,
+    PostReplyComment,
+    PostShare,
+    PostShareComment,
+    User,
+} from '../../Entities';
 import { FieldError } from '..';
 import { ClassType, Field, ObjectType } from 'type-graphql';
 
@@ -38,25 +46,37 @@ function MutationResponse<T extends ClassType>(ModelClass: T, field: string) {
 }
 
 @ObjectType()
-export class UserMutationResponse extends MutationResponse(User, "user") {}
+export class UserMutationResponse extends MutationResponse(User, 'user') {
+    @Field({ nullable: true })
+    token?: string;
+}
 
 @ObjectType()
-export class PostMutationResponse extends MutationResponse(Post, "post") {}
+export class PostMutationResponse extends MutationResponse(Post, 'post') {}
 
 @ObjectType()
-export class CommentMutationResponse extends MutationResponse(PostComment, "comment"){}
+export class CommentMutationResponse extends MutationResponse(PostComment, 'comment') {}
 
 @ObjectType()
-export class ReplyCommentMutationResponse extends MutationResponse(PostReplyComment, "reply_comment"){}
+export class ReplyCommentMutationResponse extends MutationResponse(
+    PostReplyComment,
+    'reply_comment'
+) {}
 
 @ObjectType()
-export class PostShareMutationResponse extends MutationResponse(PostShare, "post") {}
+export class PostShareMutationResponse extends MutationResponse(PostShare, 'post') {}
 
 @ObjectType()
-export class CommentPostShareMutationResponse extends MutationResponse(PostShareComment, "comment"){}
+export class CommentPostShareMutationResponse extends MutationResponse(
+    PostShareComment,
+    'comment'
+) {}
 
 @ObjectType()
-export class ReplyCommentPostShareMutationResponse extends MutationResponse(PostReplyComment, "reply_comment"){}
+export class ReplyCommentPostShareMutationResponse extends MutationResponse(
+    PostReplyComment,
+    'reply_comment'
+) {}
 
 @ObjectType()
-export class MessageMutationResponse extends MutationResponse(Message, "chat_message"){}
+export class MessageMutationResponse extends MutationResponse(Message, 'chat_message') {}

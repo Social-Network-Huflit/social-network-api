@@ -29,7 +29,7 @@ export default async function ApolloServerExpress() {
 
                 const _id = cookies.replace(`${COOKIES_NAME}`, '').split('.')[0].slice(5);
 
-                const connection = await mongoose.connect(MONGO_DB_URL);
+                await mongoose.connect(MONGO_DB_URL);
 
                 const collection = mongoose.connection.db.collection('sessions');
 
@@ -49,7 +49,7 @@ export default async function ApolloServerExpress() {
                             session: {
                                 userId: JSON.parse((session as any).session).userId,
                             },
-                            locale: 'en',
+                            locale: request.headers["locale"],
                         },
                     },
                     schema,

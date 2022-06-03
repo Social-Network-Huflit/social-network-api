@@ -1,4 +1,17 @@
-import { Ctx, Field, FieldResolver, Query, Resolver, Root, UseMiddleware } from 'type-graphql';
+import { AuthenticationError } from 'apollo-server-core';
+import i18n from 'i18n';
+import jwt from 'jsonwebtoken';
+import {
+    Arg,
+    Ctx,
+    FieldResolver,
+    Mutation,
+    Query,
+    Resolver,
+    Root,
+    UseMiddleware,
+} from 'type-graphql';
+import { Logger } from '../../Configs';
 import {
     Follow,
     Post,
@@ -17,7 +30,7 @@ import {
     User,
 } from '../../Entities';
 import { Authentication } from '../../Middlewares/Auth.middleware';
-import { Context } from '../../Types';
+import { Context, UserMutationResponse } from '../../Types';
 
 @Resolver(() => User)
 export default class UserResolver {
@@ -120,21 +133,56 @@ export default class UserResolver {
     //following
     @FieldResolver(() => [User])
     async following(@Root() root: User): Promise<User[]> {
+        const result: User[] = [];
+
         const follows = await Follow.find({
             user_1: root.id,
         });
 
-        return follows.map((follow) => follow.following);
+        for (let i = 0; i < follows.length; i++) {
+            const element = follows[i];
+
+            const user = await User.findOne(element.user_2);
+
+            if (user) {
+                result.push(user);
+            }
+        }
+
+        return result;
     }
 
     //followers
     @FieldResolver(() => [User])
     async followers(@Root() root: User): Promise<User[]> {
+        const result: User[] = [];
+
         const follows = await Follow.find({
             user_2: root.id,
         });
 
-        return follows.map((follow) => follow.followers);
+        for (let i = 0; i < follows.length; i++) {
+            const element = follows[i];
+
+            const user = await User.findOne(element.user_1);
+
+            if (user) {
+                result.push(user);
+            }
+        }
+
+        return result;
+    }
+
+    //isFollowed
+    @FieldResolver(() => Boolean)
+    async isFollowed(@Root() root: User, @Ctx() { req }: Context): Promise<boolean> {
+        const follow = await Follow.findOne({
+            user_1: req.session.userId,
+            user_2: root.id,
+        });
+
+        return follow != undefined;
     }
 
     //rooms
@@ -147,7 +195,75 @@ export default class UserResolver {
     @UseMiddleware(Authentication)
     @Query(() => User, { nullable: true })
     async getMyUser(@Ctx() { req }: Context): Promise<User | null | undefined> {
-        const user = await User.findOne(req.session.userId);
-        return user;
+        if (req.device?.type === 'desktop') {
+            return await User.findOne(req.session.userId);
+        }
+
+        if (req.device?.type === 'phone') {
+            const bearerToken = req.headers.authorization;
+
+            const token = bearerToken?.replace('Bearer ', '');
+
+            if (token) {
+                return new Promise<User | null | undefined>((resolve) => {
+                    jwt.verify(
+                        token,
+                        process.env.JWT_SECRET as string,
+                        async (err, decode: any) => {
+                            if (err) {
+                                Logger.error(err);
+                                resolve(null);
+                            } else {
+                                resolve(await User.findOne(decode.id));
+                            }
+                        }
+                    );
+                });
+            }
+        }
+    }
+
+    //Get All User (Test)
+    @UseMiddleware(Authentication)
+    @Query(() => [User])
+    async getAllUser(@Ctx() { req }: Context): Promise<User[]> {
+        return await User.find();
+    }
+
+    //Follow User
+    @UseMiddleware(Authentication)
+    @Mutation(() => UserMutationResponse)
+    async followUser(
+        @Arg('user_id') user_id: number,
+        @Ctx() { req }: Context
+    ): Promise<UserMutationResponse> {
+        const myUser = await User.getMyUser(req);
+        const followUser = await User.findOne(user_id);
+
+        if (myUser.id === user_id) {
+            return {
+                code: 400,
+                success: false,
+                message: i18n.__('USER.FOLLOW_FAIL'),
+            };
+        }
+
+        if (!followUser) {
+            throw new AuthenticationError(i18n.__('AUTH.FIND_USER_FAIL'));
+        }
+
+        const follow = Follow.create({
+            user_1: myUser.id,
+            user_2: followUser.id,
+        });
+
+        await follow.save();
+
+        return {
+            code: 200,
+            success: true,
+            message: i18n.__('USER.FOLLOW_SUCCESS'),
+            result: followUser,
+        };
     }
 }
