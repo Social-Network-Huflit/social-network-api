@@ -8,17 +8,18 @@ import {
     PostLike,
     PostReplyComment,
     PostReplyCommentLike,
-    User
+    User,
 } from '../../Entities';
 import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     CommentMutationResponse,
     Context,
     CreateCommentPostInput,
-    IMutationResponse, ReplyCommentMutationResponse,
+    IMutationResponse,
+    ReplyCommentMutationResponse,
     ReplyCommentPostInput,
     ServerInternal,
-    UpdateCommentPostInput
+    UpdateCommentPostInput,
 } from '../../Types';
 import UpdateEntity from '../../Utils/UpdateEntity';
 import ValidateInput from '../../Utils/Validation';
@@ -84,7 +85,7 @@ export default class InteractPostResolver {
     //Create comment Post
     @UseMiddleware(Authentication)
     @Mutation(() => CommentMutationResponse)
-    async commentPost(
+    async createCommentPost(
         @Arg('createCommentInput') createCommentInput: CreateCommentPostInput,
         @Ctx() { req }: Context
     ): Promise<CommentMutationResponse> {
@@ -112,6 +113,8 @@ export default class InteractPostResolver {
                 post,
                 ...createCommentInput,
             });
+
+            console.log(newComment);
 
             return {
                 code: 201,

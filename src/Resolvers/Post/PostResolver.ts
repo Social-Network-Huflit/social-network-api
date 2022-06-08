@@ -17,6 +17,7 @@ import {
     Context,
     CreatePostInput,
     PostMutationResponse,
+    PostType,
     ServerInternal,
     UpdatePostInput,
 } from '../../Types';
@@ -40,6 +41,12 @@ export default class PostResolver {
         return like !== undefined;
     }
 
+    //post_type
+    @FieldResolver(() => String)
+    post_type() {
+        return 'post';
+    }
+
     //like_type
     @FieldResolver(() => String, { nullable: true })
     async like_type(@Root() root: Post, @Ctx() { req }: Context): Promise<string | null> {
@@ -59,7 +66,7 @@ export default class PostResolver {
 
     //post_type
     @FieldResolver(() => String)
-    post_type(@Root() root: Post): 'text' | 'images' | 'video' | 'youtube' {
+    content_type(@Root() root: Post): 'text' | 'images' | 'video' | 'youtube' {
         if (root.image_link) {
             return 'images';
         }
@@ -253,21 +260,49 @@ export default class PostResolver {
         }
     }
 
+    //getPosts
     @UseMiddleware(Authentication)
-    @Query(() => [Post])
-    async getPosts(@Ctx() { req }: Context): Promise<Post[]> {
-        const result: Post[] = [];
+    @Query(() => [PostType])
+    async getPosts(@Ctx() { req }: Context): Promise<(Post | PostShare)[]> {
+        const result: (Post | PostShare)[] = [];
 
         const user = await User.getMyUser(req);
 
+        const myPost = await this.getPostByUser(user.id);
+
+        const followingPost = await this.getFollowingPosts(user.id);
+
+        result.push(...myPost, ...followingPost);
+
+        return result;
+    }
+
+    async getPostByUser(user_id: number) {
+        const result: (Post | PostShare)[] = [];
+
         const myPost = await Post.find({
-            user_id: user.id,
+            where: { user_id },
+            order: {
+                createdAt: 'DESC',
+            },
         });
 
-        result.push(...myPost);
+        const myPostShare = await PostShare.find({
+            where: { user_id },
+            order: {
+                createdAt: 'DESC',
+            },
+        });
 
+        result.push(...myPost, ...myPostShare);
+
+        return result;
+    }
+
+    async getFollowingPosts(user_id: number) {
+        const result: (Post | PostShare)[] = [];
         const followings = await Follow.find({
-            user_1: user.id,
+            user_1: user_id,
         });
 
         for (let i = 0; i < followings.length; i++) {
@@ -280,11 +315,22 @@ export default class PostResolver {
                 },
             });
 
+            const postShare = await PostShare.find({
+                where: { user_id: element.user_2 },
+                order: {
+                    createdAt: 'DESC',
+                },
+            });
+
             if (post) {
                 result.push(...post);
             }
+
+            if (postShare) {
+                result.push(...postShare);
+            }
         }
-        console.log('hahah');
+
         return result;
     }
 }

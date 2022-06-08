@@ -1,4 +1,4 @@
-import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from 'type-graphql';
+import { Arg, Ctx, ID, Mutation, Resolver, UseMiddleware } from 'type-graphql';
 import { Logger } from '../../Configs';
 import {
     PostShare,
@@ -30,7 +30,8 @@ export default class InteractPostShareResolver {
     @UseMiddleware(Authentication)
     @Mutation(() => IMutationResponse)
     async likePostShare(
-        @Arg('post_share_id') post_share_id: number,
+        @Arg('post_share_id', () => ID) post_share_id: number,
+        @Arg("like_type") like_type: "like" | "haha" | "sad" | "wow" | "angry",
         @Ctx() { req }: Context
     ): Promise<IMutationResponse> {
         try {
@@ -54,8 +55,9 @@ export default class InteractPostShareResolver {
 
             if (!existingLike) {
                 const newLike = PostShareLike.create({
-                    post_share,
-                    owner,
+                    post_share_id: post_share.id,
+                    user_id: owner.id,
+                    like_type
                 });
 
                 await newLike.save();

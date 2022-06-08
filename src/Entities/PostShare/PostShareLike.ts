@@ -32,6 +32,10 @@ export default class PostShareLike extends BaseEntity {
     @JoinColumn({ name: 'user_id' })
     owner: User;
 
+    @Field(() => String)
+    @Column()
+    like_type: "like" | "haha" | "sad" | "wow" | "angry";
+
     @Column()
     user_id: number;
 

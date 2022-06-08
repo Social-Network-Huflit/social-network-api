@@ -1,14 +1,13 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator-multi-lang';
-import { Field, InputType } from 'type-graphql';
+import { Field, ID, InputType } from 'type-graphql';
 
 @InputType()
 export class CreatePostShareInput {
     @Field({ nullable: true })
     caption?: string;
 
-    @Field()
+    @Field(() => ID)
     @IsNotEmpty()
-    @IsNumber()
     post_id: number;
 }
 

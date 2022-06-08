@@ -177,8 +177,10 @@ export default class UserResolver {
     //isFollowed
     @FieldResolver(() => Boolean)
     async isFollowed(@Root() root: User, @Ctx() { req }: Context): Promise<boolean> {
+        const user = await User.getMyUser(req);
+
         const follow = await Follow.findOne({
-            user_1: req.session.userId,
+            user_1: user.id,
             user_2: root.id,
         });
 
@@ -195,32 +197,7 @@ export default class UserResolver {
     @UseMiddleware(Authentication)
     @Query(() => User, { nullable: true })
     async getMyUser(@Ctx() { req }: Context): Promise<User | null | undefined> {
-        if (req.device?.type === 'desktop') {
-            return await User.findOne(req.session.userId);
-        }
-
-        if (req.device?.type === 'phone') {
-            const bearerToken = req.headers.authorization;
-
-            const token = bearerToken?.replace('Bearer ', '');
-
-            if (token) {
-                return new Promise<User | null | undefined>((resolve) => {
-                    jwt.verify(
-                        token,
-                        process.env.JWT_SECRET as string,
-                        async (err, decode: any) => {
-                            if (err) {
-                                Logger.error(err);
-                                resolve(null);
-                            } else {
-                                resolve(await User.findOne(decode.id));
-                            }
-                        }
-                    );
-                });
-            }
-        }
+        return User.getMyUser(req);
     }
 
     //Get All User (Test)
@@ -250,6 +227,19 @@ export default class UserResolver {
 
         if (!followUser) {
             throw new AuthenticationError(i18n.__('AUTH.FIND_USER_FAIL'));
+        }
+
+        const existingFollow = await Follow.findOne({
+            user_1: myUser.id,
+            user_2: followUser.id,
+        });
+
+        if (existingFollow) {
+            return {
+                code: 400,
+                success: false,
+                message: i18n.__('USER.FOLLOW_FAIL'),
+            };
         }
 
         const follow = Follow.create({

@@ -17,3 +17,6 @@ export {default as ServerInternal} from './Errors/ServerInternal'
 export { default as Context } from './Context'
 export * from './Context'
 export {default as JWTPayload} from './JWTPayload'
+
+//Union
+export * from './Unions/PostType'
