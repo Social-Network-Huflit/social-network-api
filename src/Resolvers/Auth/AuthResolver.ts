@@ -84,6 +84,7 @@ export default class AuthResolver {
     ): Promise<UserMutationResponse> {
         const { usernameOrEmail, password } = loginInput;
 
+
         if (await CheckLogged(req)) {
             return {
                 code: 400,

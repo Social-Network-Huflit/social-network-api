@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import {
     Follow,
+    HistorySearch,
     Message,
     Post,
     PostComment,
@@ -123,6 +124,13 @@ export default class User extends BaseEntity {
     @Field(() => [User])
     @OneToMany(() => Follow, (follow) => follow.following)
     followers: User[];
+
+    @Field(() => [HistorySearch])
+    @ManyToMany(() => HistorySearch, history => history.owner)
+    history: HistorySearch[]
+
+    @ManyToMany(() => HistorySearch, history => history.user)
+    history_2: HistorySearch[]
 
     @ManyToMany(() => Room, (room) => room.members)
     @JoinTable({

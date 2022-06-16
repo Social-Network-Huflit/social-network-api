@@ -1,6 +1,8 @@
 import { PostComment, PostReplyCommentLike, User } from '../../Entities';
-import { FieldResolver, Resolver, Root } from 'type-graphql';
+import { Ctx, FieldResolver, Resolver, Root } from 'type-graphql';
 import PostReplyComment from '../../Entities/Post/PostReplyComment';
+import moment from 'moment';
+import { Context } from '../../Types';
 
 @Resolver(() => PostReplyComment)
 export default class PostReplyCommentResolver {
@@ -26,5 +28,48 @@ export default class PostReplyCommentResolver {
         return await PostReplyCommentLike.find({
             reply_comment_id: root.id,
         });
+    }
+
+    //like_count
+    @FieldResolver(() => Number)
+    async like_count(@Root() root: PostReplyComment): Promise<number> {
+        return (await this.likes(root)).length;
+    }
+
+    //timestamp
+    @FieldResolver(() => String)
+    timestamp(@Root() root: PostReplyComment): string {
+        return moment(root.createdAt).fromNow();
+    }
+
+    //liked
+    @FieldResolver(() => Boolean)
+    async liked(@Root() root: PostReplyComment, @Ctx() { req }: Context): Promise<boolean> {
+        const user = await User.getMyUser(req);
+
+        const like = await PostReplyCommentLike.findOne({
+            reply_comment_id: root.id,
+            user_id: user.id,
+        });
+
+        return like !== undefined;
+    }
+
+    //like_type
+    @FieldResolver(() => String, { nullable: true })
+    async like_type(
+        @Root() root: PostReplyComment,
+        @Ctx() { req }: Context
+    ): Promise<string | null | undefined> {
+        const user = await User.getMyUser(req);
+
+        const like = await PostReplyCommentLike.findOne({
+            reply_comment_id: root.id,
+            user_id: user.id,
+        });
+
+        if (like) return like.like_type;
+
+        return null;
     }
 }

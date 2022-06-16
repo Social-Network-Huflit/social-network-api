@@ -15,6 +15,7 @@ import {
     Context,
     CreateCommentPostShareInput,
     IMutationResponse,
+    PostShareMutationResponse,
     ReplyCommentPostShareInput,
     ReplyCommentPostShareMutationResponse,
     ServerInternal,
@@ -28,12 +29,12 @@ import i18n from 'i18n'
 export default class InteractPostShareResolver {
     //Like post share
     @UseMiddleware(Authentication)
-    @Mutation(() => IMutationResponse)
+    @Mutation(() => PostShareMutationResponse)
     async likePostShare(
         @Arg('post_share_id', () => ID) post_share_id: number,
         @Arg("like_type") like_type: "like" | "haha" | "sad" | "wow" | "angry",
         @Ctx() { req }: Context
-    ): Promise<IMutationResponse> {
+    ): Promise<PostShareMutationResponse> {
         try {
             const owner = await User.getMyUser(req);
             const post_share = await PostShare.findOne({
@@ -298,11 +299,12 @@ export default class InteractPostShareResolver {
 
     //Like comment post share
     @UseMiddleware(Authentication)
-    @Mutation(() => IMutationResponse)
+    @Mutation(() => CommentPostShareMutationResponse)
     async likeCommentPostShare(
-        @Arg('comment_id') comment_id: number,
+        @Arg('comment_id', () => ID) comment_id: number,
+        @Arg("like_type") like_type: "like" | "haha" | "sad" | "wow" | "angry",
         @Ctx() { req }: Context
-    ): Promise<IMutationResponse> {
+    ): Promise<CommentPostShareMutationResponse> {
         try {
             const owner = await User.getMyUser(req);
             const comment = await PostShareComment.findOne({
@@ -326,6 +328,7 @@ export default class InteractPostShareResolver {
                 const newLike = PostShareCommentLike.create({
                     comment,
                     owner,
+                    like_type
                 });
 
                 await newLike.save();
@@ -396,11 +399,12 @@ export default class InteractPostShareResolver {
 
     //Like reply comment post
     @UseMiddleware(Authentication)
-    @Mutation(() => IMutationResponse)
+    @Mutation(() => ReplyCommentPostShareMutationResponse)
     async likeReplyCommentPostShare(
-        @Arg('reply_comment_id') reply_comment_id: number,
+        @Arg('reply_comment_id', () => ID) reply_comment_id: number,
+        @Arg("like_type") like_type: "like" | "haha" | "sad" | "wow" | "angry",
         @Ctx() { req }: Context
-    ): Promise<IMutationResponse> {
+    ): Promise<ReplyCommentPostShareMutationResponse> {
         try {
             const owner = await User.getMyUser(req);
             const reply_comment = await PostShareReplyComment.findOne({
@@ -424,6 +428,7 @@ export default class InteractPostShareResolver {
                 const newLike = PostShareReplyCommentLike.create({
                     reply_comment,
                     owner,
+                    like_type
                 });
 
                 await newLike.save();

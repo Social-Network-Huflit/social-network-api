@@ -18,9 +18,11 @@ import PostShareReplyComment from './PostShare/PostShareReplyComment';
 import PostShareReplyCommentLike from './PostShare/PostShareReplyCommentLike';
 import Message from './Chat/Message';
 import Room from './Chat/Room';
+import HistorySearch from './Auth/HistorySearch';
 
 export { default as User } from './Auth/User';
 export { default as Follow } from './Auth/Follow';
+export {default as HistorySearch} from './Auth/HistorySearch'
 
 //Post
 export { default as Post } from './Post/Post';
@@ -58,5 +60,6 @@ export const entities = [
     PostShareReplyComment,
     PostShareReplyCommentLike,
     Message,
-    Room
+    Room,
+    HistorySearch
 ];

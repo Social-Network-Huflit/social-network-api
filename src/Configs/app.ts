@@ -5,6 +5,7 @@ import path, { join } from 'path';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { COOKIES_NAME, MONGO_DB_URL, __prod__ } from '../Constants';
 import i18n from 'i18n';
+import cors from 'cors';
 
 const device = require('express-device');
 const app = express();
@@ -17,6 +18,12 @@ i18n.configure({
     objectNotation: true,
 });
 
+app.use(
+    cors({
+        origin: "http://localhost:4200",
+        credentials: true,
+    })
+);
 app.use(
     session({
         name: COOKIES_NAME,
@@ -36,6 +43,6 @@ app.use(
 app.use(i18n.init);
 app.use(device.capture());
 app.use(graphqlUploadExpress());
-app.use(express.static(join(__dirname, "../public")))
+app.use(express.static(join(__dirname, '../public')));
 
 export default app;

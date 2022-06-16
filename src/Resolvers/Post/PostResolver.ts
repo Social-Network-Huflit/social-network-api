@@ -277,7 +277,8 @@ export default class PostResolver {
         return result;
     }
 
-    async getPostByUser(user_id: number) {
+    @Query(() => [PostType])
+    async getPostByUser(@Arg('user_id', () => ID) user_id: number): Promise<(Post | PostShare)[]> {
         const result: (Post | PostShare)[] = [];
 
         const myPost = await Post.find({

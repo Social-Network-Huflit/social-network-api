@@ -1,4 +1,14 @@
-import { Arg, Ctx, FieldResolver, ID, Mutation, Query, Resolver, Root, UseMiddleware } from 'type-graphql';
+import {
+    Arg,
+    Ctx,
+    FieldResolver,
+    ID,
+    Mutation,
+    Query,
+    Resolver,
+    Root,
+    UseMiddleware,
+} from 'type-graphql';
 import { Logger } from '../../Configs';
 import { Post, PostShare, PostShareComment, PostShareLike, User } from '../../Entities';
 import { Authentication } from '../../Middlewares/Auth.middleware';
@@ -42,7 +52,10 @@ export default class PostShareResolver {
     @FieldResolver(() => [PostShareComment])
     async comments(@Root() root: PostShare): Promise<PostShareComment[]> {
         return await PostShareComment.find({
-            post_share_id: root.id,
+            where: { post_share_id: root.id },
+            order: {
+                createdAt: 'DESC',
+            },
         });
     }
 
@@ -55,7 +68,10 @@ export default class PostShareResolver {
     @FieldResolver(() => [PostShareLike])
     async likes(@Root() root: PostShare): Promise<PostShareLike[]> {
         return await PostShareLike.find({
-            post_share_id: root.id,
+            where: { post_share_id: root.id },
+            order: {
+                createdAt: 'DESC',
+            },
         });
     }
 
@@ -225,8 +241,10 @@ export default class PostShareResolver {
     }
 
     //Get Post Share
-    @Query(() => PostShare, {nullable: true})
-    async getPostShare(@Arg("post_id", () => ID) post_id: number): Promise<PostShare | null | undefined>{
+    @Query(() => PostShare, { nullable: true })
+    async getPostShare(
+        @Arg('post_id', () => ID) post_id: number
+    ): Promise<PostShare | null | undefined> {
         return await PostShare.findOne(post_id);
     }
 }

@@ -35,6 +35,10 @@ export default class PostShareCommentLike extends BaseEntity {
     @Column()
     post_share_comment_id: number;
 
+    @Field(() => String)
+    @Column()
+    like_type: 'haha' | 'like' | 'wow' | 'sad' | 'angry';
+
     @CreateDateColumn()
     @Field()
     createdAt: Date;

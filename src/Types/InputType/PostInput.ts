@@ -49,7 +49,6 @@ export class CreateCommentPostInput {
 @InputType()
 export class UpdateCommentPostInput {
     @Field(() => ID)
-    @IsNumber()
     @IsNotEmpty()
     id: number;
 
@@ -62,7 +61,6 @@ export class UpdateCommentPostInput {
 @InputType()
 export class ReplyCommentPostInput {
     @Field(() => ID)
-    @IsNumber()
     @IsNotEmpty()
     comment_id: number;
 

@@ -1,6 +1,7 @@
-import { Post, PostComment, PostCommentLike, PostReplyComment, User } from '../../Entities';
-import { FieldResolver, Resolver, Root } from 'type-graphql';
+import { Post, PostComment, PostCommentLike, PostLike, PostReplyComment, User } from '../../Entities';
+import { Ctx, FieldResolver, Resolver, Root } from 'type-graphql';
 import moment from 'moment';
+import { Context } from '../../Types';
 
 @Resolver(() => PostComment)
 export default class PostCommentResolver {
@@ -16,6 +17,36 @@ export default class PostCommentResolver {
     @FieldResolver(() => String)
     timestamp(@Root() root: PostComment): string {
         return moment(root.createdAt).fromNow();
+    }
+
+    //liked
+    @FieldResolver(() => Boolean, )
+    async liked(@Root() root: PostComment, @Ctx() {req}: Context): Promise<boolean> {
+        const user = await User.getMyUser(req)
+
+        const like = await PostCommentLike.findOne({
+            user_id: user.id,
+            comment_id: root.id
+        })
+
+        if (like) return true;
+
+        return false;
+    }
+
+    //like_type
+    @FieldResolver(() => String, {nullable: true} )
+    async like_type(@Root() root: PostComment, @Ctx() {req}: Context): Promise<string | undefined | null> {
+        const user = await User.getMyUser(req)
+
+        const like = await PostCommentLike.findOne({
+            user_id: user.id,
+            comment_id: root.id
+        })
+
+        if (like) return like.like_type;
+
+        return null;
     }
 
     //post

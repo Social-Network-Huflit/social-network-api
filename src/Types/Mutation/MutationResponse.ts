@@ -8,9 +8,10 @@ import {
     User,
 } from '../../Entities';
 import { FieldError } from '..';
-import { ClassType, Field, ObjectType } from 'type-graphql';
+import { ClassType, Field, InterfaceType, ObjectType } from 'type-graphql';
 
-@ObjectType()
+@InterfaceType()
+@ObjectType('MutationResponse')
 export abstract class IMutationResponse {
     @Field()
     code!: number;
@@ -45,38 +46,54 @@ function MutationResponse<T extends ClassType>(ModelClass: T, field: string) {
     return ModelMutationResponse;
 }
 
-@ObjectType()
+@ObjectType({
+    implements: IMutationResponse
+})
 export class UserMutationResponse extends MutationResponse(User, 'user') {
     @Field({ nullable: true })
     token?: string;
 }
 
-@ObjectType()
+@ObjectType({
+    implements: IMutationResponse
+})
 export class PostMutationResponse extends MutationResponse(Post, 'post') {}
 
-@ObjectType()
+@ObjectType({
+    implements: IMutationResponse
+})
 export class CommentMutationResponse extends MutationResponse(PostComment, 'comment') {}
 
-@ObjectType()
+@ObjectType({
+    implements: IMutationResponse
+})
 export class ReplyCommentMutationResponse extends MutationResponse(
     PostReplyComment,
     'reply_comment'
 ) {}
 
-@ObjectType()
+@ObjectType({
+    implements: IMutationResponse
+})
 export class PostShareMutationResponse extends MutationResponse(PostShare, 'post') {}
 
-@ObjectType()
+@ObjectType({
+    implements: IMutationResponse
+})
 export class CommentPostShareMutationResponse extends MutationResponse(
     PostShareComment,
     'comment'
 ) {}
 
-@ObjectType()
+@ObjectType({
+    implements: IMutationResponse
+})
 export class ReplyCommentPostShareMutationResponse extends MutationResponse(
     PostReplyComment,
     'reply_comment'
 ) {}
 
-@ObjectType()
+@ObjectType({
+    implements: IMutationResponse
+})
 export class MessageMutationResponse extends MutationResponse(Message, 'chat_message') {}

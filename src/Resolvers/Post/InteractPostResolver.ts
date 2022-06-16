@@ -15,7 +15,7 @@ import {
     CommentMutationResponse,
     Context,
     CreateCommentPostInput,
-    IMutationResponse,
+    PostMutationResponse,
     ReplyCommentMutationResponse,
     ReplyCommentPostInput,
     ServerInternal,
@@ -28,12 +28,12 @@ import ValidateInput from '../../Utils/Validation';
 export default class InteractPostResolver {
     //Like post
     @UseMiddleware(Authentication)
-    @Mutation(() => IMutationResponse)
+    @Mutation(() => PostMutationResponse)
     async likePost(
         @Arg('post_id', () => ID) post_id: number,
         @Arg('like_type') like_type: 'like' | 'haha' | 'wow' | 'sad' | 'angry',
         @Ctx() { req }: Context
-    ): Promise<IMutationResponse> {
+    ): Promise<PostMutationResponse> {
         try {
             const owner = await User.getMyUser(req);
             const post = await Post.findOne({
@@ -114,8 +114,6 @@ export default class InteractPostResolver {
                 ...createCommentInput,
             });
 
-            console.log(newComment);
-
             return {
                 code: 201,
                 success: true,
@@ -168,11 +166,11 @@ export default class InteractPostResolver {
 
     //Delete comment post
     @UseMiddleware(Authentication)
-    @Mutation(() => IMutationResponse)
+    @Mutation(() => PostMutationResponse)
     async deleteCommentPost(
         @Arg('comment_id') comment_id: number,
         @Ctx() { req }: Context
-    ): Promise<IMutationResponse> {
+    ): Promise<PostMutationResponse> {
         try {
             const comment = await PostComment.findOne({
                 id: comment_id,
@@ -222,11 +220,11 @@ export default class InteractPostResolver {
 
     //Delete reply comment post
     @UseMiddleware(Authentication)
-    @Mutation(() => IMutationResponse)
+    @Mutation(() => PostMutationResponse)
     async deleteReplyCommentPost(
         @Arg('reply_comment_id') reply_comment_id: number,
         @Ctx() { req }: Context
-    ): Promise<IMutationResponse> {
+    ): Promise<PostMutationResponse> {
         try {
             const reply_comment = await PostReplyComment.findOne({
                 id: reply_comment_id,
@@ -292,11 +290,12 @@ export default class InteractPostResolver {
 
     //Like comment post
     @UseMiddleware(Authentication)
-    @Mutation(() => IMutationResponse)
+    @Mutation(() => PostMutationResponse)
     async likeCommentPost(
-        @Arg('comment_id') comment_id: number,
+        @Arg('comment_id', () => ID) comment_id: number,
+        @Arg('like_type') like_type: 'like' | 'haha' | 'angry' | 'wow' | 'sad',
         @Ctx() { req }: Context
-    ): Promise<IMutationResponse> {
+    ): Promise<PostMutationResponse> {
         try {
             const owner = await User.getMyUser(req);
             const comment = await PostComment.findOne({
@@ -320,6 +319,7 @@ export default class InteractPostResolver {
                 const newLike = PostCommentLike.create({
                     comment,
                     owner,
+                    like_type,
                 });
 
                 await newLike.save();
@@ -390,11 +390,12 @@ export default class InteractPostResolver {
 
     //Like reply comment post
     @UseMiddleware(Authentication)
-    @Mutation(() => IMutationResponse)
+    @Mutation(() => PostMutationResponse)
     async likeReplyCommentPost(
-        @Arg('reply_comment_id') reply_comment_id: number,
+        @Arg('reply_comment_id', () => ID) reply_comment_id: number,
+        @Arg('like_type') like_type: 'like' | 'haha' | 'angry' | 'wow' | 'sad',
         @Ctx() { req }: Context
-    ): Promise<IMutationResponse> {
+    ): Promise<PostMutationResponse> {
         try {
             const owner = await User.getMyUser(req);
             const reply_comment = await PostReplyComment.findOne({
@@ -418,6 +419,7 @@ export default class InteractPostResolver {
                 const newLike = PostReplyCommentLike.create({
                     reply_comment,
                     owner,
+                    like_type
                 });
 
                 await newLike.save();

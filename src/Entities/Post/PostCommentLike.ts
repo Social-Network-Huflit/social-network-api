@@ -36,6 +36,10 @@ export default class PostCommentLike extends BaseEntity {
     user_id: number;
 
     @Field()
+    @Column()
+    like_type: 'like' | 'haha' | 'angry' | 'wow' | 'sad';
+
+    @Field()
     @CreateDateColumn()
     createdAt: Date;
 

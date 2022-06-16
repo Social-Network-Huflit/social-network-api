@@ -22,8 +22,7 @@ export class UpdatePostShareInput {
 
 @InputType()
 export class CreateCommentPostShareInput {
-    @Field()
-    @IsNumber()
+    @Field(() => ID)
     @IsNotEmpty()
     post_share_id: number;
 
@@ -35,8 +34,7 @@ export class CreateCommentPostShareInput {
 
 @InputType()
 export class UpdateCommentPostShareInput {
-    @Field()
-    @IsNumber()
+    @Field(() => ID)
     @IsNotEmpty()
     id: number;
 
@@ -48,8 +46,7 @@ export class UpdateCommentPostShareInput {
 
 @InputType()
 export class ReplyCommentPostShareInput {
-    @Field()
-    @IsNumber()
+    @Field(() => ID)
     @IsNotEmpty()
     comment_id: number;
 

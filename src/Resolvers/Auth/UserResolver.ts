@@ -1,19 +1,20 @@
 import { AuthenticationError } from 'apollo-server-core';
 import i18n from 'i18n';
-import jwt from 'jsonwebtoken';
 import {
     Arg,
     Ctx,
     FieldResolver,
+    ID,
     Mutation,
     Query,
     Resolver,
     Root,
     UseMiddleware,
 } from 'type-graphql';
-import { Logger } from '../../Configs';
+import { Like, Raw } from 'typeorm';
 import {
     Follow,
+    HistorySearch,
     Post,
     PostComment,
     PostCommentLike,
@@ -39,6 +40,17 @@ export default class UserResolver {
     async posts(@Root() root: User): Promise<Post[]> {
         return await Post.find({
             user_id: root.id,
+        });
+    }
+
+    //history
+    @FieldResolver(() => [HistorySearch])
+    async history(@Root() root: User): Promise<HistorySearch[]> {
+        return await HistorySearch.find({
+            where: { user_id_1: root.id },
+            order: {
+                updatedAt: 'DESC',
+            },
         });
     }
 
@@ -211,7 +223,7 @@ export default class UserResolver {
     @UseMiddleware(Authentication)
     @Mutation(() => UserMutationResponse)
     async followUser(
-        @Arg('user_id') user_id: number,
+        @Arg('user_id', () => ID) user_id: number,
         @Ctx() { req }: Context
     ): Promise<UserMutationResponse> {
         const myUser = await User.getMyUser(req);
@@ -235,25 +247,64 @@ export default class UserResolver {
         });
 
         if (existingFollow) {
+            await Follow.remove(existingFollow);
+
             return {
-                code: 400,
-                success: false,
-                message: i18n.__('USER.FOLLOW_FAIL'),
+                code: 200,
+                success: true,
+                message: i18n.__('USER.UNFOLLOW_SUCCESS'),
+            };
+        } else {
+            const follow = Follow.create({
+                user_1: myUser.id,
+                user_2: followUser.id,
+            });
+
+            await follow.save();
+
+            return {
+                code: 201,
+                success: true,
+                message: i18n.__('USER.FOLLOW_SUCCESS'),
+                result: followUser,
             };
         }
+    }
 
-        const follow = Follow.create({
-            user_1: myUser.id,
-            user_2: followUser.id,
+    @UseMiddleware(Authentication)
+    @Query(() => User)
+    async getUserById(
+        @Arg('user_id', () => ID) user_id: number,
+        @Ctx() { req }: Context
+    ): Promise<User> {
+        const myUser = await User.getMyUser(req);
+
+        if (myUser.id === user_id) {
+            throw new AuthenticationError('Can not get your own profile');
+        }
+
+        const user = await User.findOne(user_id);
+
+        if (!user) {
+            throw new AuthenticationError('Can not find profile');
+        }
+
+        return user;
+    }
+
+    @UseMiddleware(Authentication)
+    @Query(() => [User], { nullable: true })
+    async searchUser(@Arg('content') content: string, @Ctx() { req }: Context): Promise<User[]> {
+        const myUser = await User.getMyUser(req);
+
+        const users = await User.find({
+            where: [
+                { username: Raw((alias) => `LOWER(${alias}) LIKE '%${content.toLowerCase()}%'`) },
+                { email: Raw((alias) => `LOWER(${alias}) LIKE '%${content.toLowerCase()}%'`) },
+                { name: Raw((alias) => `LOWER(${alias}) LIKE '%${content.toLowerCase()}%'`) },
+            ],
         });
 
-        await follow.save();
-
-        return {
-            code: 200,
-            success: true,
-            message: i18n.__('USER.FOLLOW_SUCCESS'),
-            result: followUser,
-        };
+        return users.filter((user) => user.id !== myUser.id);
     }
 }
