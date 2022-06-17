@@ -57,4 +57,25 @@ export default class HistorySearchResolver {
             };
         }
     }
+
+    @Mutation(() => IMutationResponse)
+    async removeHistory(@Arg('history_id', () => ID) history_id: string): Promise<IMutationResponse> {
+        const existingHistory = await HistorySearch.findOne(history_id);
+
+        if (!existingHistory) {
+            return {
+                code: 400,
+                success: false,
+                message: 'FAIL',
+            };
+        }
+
+        await HistorySearch.remove(existingHistory);
+
+        return {
+            code: 200,
+            success: true,
+            message: 'SUCCESS',
+        };
+    }
 }

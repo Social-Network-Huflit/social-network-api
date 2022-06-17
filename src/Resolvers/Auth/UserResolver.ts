@@ -11,7 +11,7 @@ import {
     Root,
     UseMiddleware,
 } from 'type-graphql';
-import { Like, Raw } from 'typeorm';
+import { In, Like, Not, Raw } from 'typeorm';
 import {
     Follow,
     HistorySearch,
@@ -293,7 +293,7 @@ export default class UserResolver {
     }
 
     @UseMiddleware(Authentication)
-    @Query(() => [User], { nullable: true })
+    @Query(() => [User])
     async searchUser(@Arg('content') content: string, @Ctx() { req }: Context): Promise<User[]> {
         const myUser = await User.getMyUser(req);
 
@@ -306,5 +306,23 @@ export default class UserResolver {
         });
 
         return users.filter((user) => user.id !== myUser.id);
+    }
+
+    @UseMiddleware(Authentication)
+    @Query(() => [User])
+    async getSuggestionUser(@Ctx() { req }: Context): Promise<User[]> {
+        const myUser = await User.getMyUser(req);
+
+        const follows = await Follow.find({
+            user_1: myUser.id,
+        });
+
+        const list_id = follows.map((item) => item.user_2).concat(myUser.id);
+
+        const users = await User.find({
+            id: Not(In(list_id)),
+        });
+
+        return users.slice(0, 10);
     }
 }
