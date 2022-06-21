@@ -1,4 +1,6 @@
+import { GraphQLUpload } from 'graphql-upload';
 import i18n from 'i18n';
+import moment from 'moment';
 import {
     Arg,
     Ctx,
@@ -11,7 +13,7 @@ import {
     UseMiddleware,
 } from 'type-graphql';
 import { Logger } from '../../Configs';
-import { Follow, Post, PostComment, PostLike, PostShare, User } from '../../Entities';
+import { Follow, Post, PostAsset, PostComment, PostLike, PostShare, User } from '../../Entities';
 import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     Context,
@@ -20,11 +22,11 @@ import {
     PostType,
     ServerInternal,
     UpdatePostInput,
+    Upload,
 } from '../../Types';
 import UpdateEntity from '../../Utils/UpdateEntity';
+import uploadFile from '../../Utils/UploadFile';
 import ValidateInput from '../../Utils/Validation';
-import moment from 'moment';
-import shuffleArray from '../../Utils/ShuffleArray';
 
 @Resolver(() => Post)
 export default class PostResolver {
@@ -66,14 +68,12 @@ export default class PostResolver {
 
     //post_type
     @FieldResolver(() => String)
-    content_type(@Root() root: Post): 'text' | 'images' | 'video' | 'youtube' {
-        if (root.image_link) {
-            return 'images';
-        }
+    async content_type(@Root() root: Post): Promise<'text' | 'assets' | 'youtube'> {
+        const assets = await PostAsset.find({
+            post_id: root.id,
+        });
 
-        if (root.video_link) {
-            return 'video';
-        }
+        if (assets.length > 0) return 'assets';
 
         if (root.youtube_link) {
             return 'youtube';
@@ -147,6 +147,14 @@ export default class PostResolver {
         return (await this.shares(root)).length;
     }
 
+    //assets
+    @FieldResolver(() => [PostAsset])
+    async assets(@Root() root: Post): Promise<PostAsset[]> {
+        return await PostAsset.find({
+            post_id: root.id,
+        });
+    }
+
     @Query(() => Post, { nullable: true })
     async getPost(@Arg('post_id', () => ID) post_id: number): Promise<Post | null | undefined> {
         return await Post.findOne(post_id);
@@ -159,6 +167,8 @@ export default class PostResolver {
         @Arg('createPostInput') createPostInput: CreatePostInput,
         @Ctx() { req }: Context
     ): Promise<PostMutationResponse> {
+        const { files } = createPostInput;
+
         try {
             const validate = await ValidateInput(req, createPostInput);
 
@@ -171,11 +181,31 @@ export default class PostResolver {
                 owner,
             });
 
+            const result = await newPost.save();
+
+            if (files) {
+                if (files.length > 0) {
+                    for (let i = 0; i < files.length; i++) {
+                        const file = await files[i];
+
+                        const link = await uploadFile(file);
+
+                        const newAsset = PostAsset.create({
+                            post_id: result.id,
+                            link,
+                            asset_type: file.mimetype.includes('image') ? 'image' : 'video',
+                        });
+
+                        await newAsset.save();
+                    }
+                }
+            }
+
             return {
                 code: 200,
                 success: true,
                 message: i18n.__('POST.CREATE_POST_SUCCESS'),
-                result: await newPost.save(),
+                result,
             };
         } catch (error: any) {
             Logger.error(error);

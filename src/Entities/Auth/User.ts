@@ -12,6 +12,7 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import {
+    Collection,
     Follow,
     HistorySearch,
     Message,
@@ -150,6 +151,10 @@ export default class User extends BaseEntity {
         name: 'seen_message',
     })
     seen_messages: Promise<Message[]>;
+
+    @OneToMany(() => Collection, collection => collection.owner)
+    @Field(() => [Collection])
+    collections: Collection[];
 
     @Field()
     @CreateDateColumn()

@@ -13,6 +13,7 @@ import {
 } from 'type-graphql';
 import { In, Like, Not, Raw } from 'typeorm';
 import {
+    Collection,
     Follow,
     HistorySearch,
     Post,
@@ -106,6 +107,14 @@ export default class UserResolver {
     @FieldResolver(() => [PostShareComment])
     async comments_post_share(@Root() root: User): Promise<PostShareComment[]> {
         return await PostShareComment.find({
+            user_id: root.id,
+        });
+    }
+
+    //collections
+    @FieldResolver(() => [Collection])
+    async collections(@Root() root: User): Promise<Collection[]> {
+        return await Collection.find({
             user_id: root.id,
         });
     }

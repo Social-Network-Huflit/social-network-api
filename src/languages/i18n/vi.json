@@ -14,6 +14,11 @@
 				"PASSWORD": "Password không đúng"
 			},
 			"SUCCESS": "Đăng nhập thành công"
+		},
+		"FORGOT_PASSWORD": {
+			"INVALID_EMAIL": "Email không tồn tại",
+			"EXPIRES_TOKEN": "Mã xác nhận đã hết hạn",
+			"CHANGE_PASSWORD_SUCCESS": "Đổi mật khẩu thành công"
 		}
 	},
 	"POST": {
@@ -36,8 +41,16 @@
 		"CREATE_POST_SHARE_SUCCESS": "Chia sẻ bài viết thành công"
 	},
 	"USER": {
-		"FOLLOW_FAIL": "USER.FOLLOW_FAIL",
-		"FOLLOW_SUCCESS": "USER.FOLLOW_SUCCESS",
-		"UNFOLLOW_SUCCESS": "USER.UNFOLLOW_SUCCESS"
+		"FOLLOW_FAIL": "Theo dõi người dùng thất bại",
+		"FOLLOW_SUCCESS": "Theo dõi người dùng thành công",
+		"UNFOLLOW_SUCCESS": "Hủy theo dõi người dùng thành công"
+	},
+	"COLLECTION": {
+		"CREATE_DUPLICATE": "COLLECTION.CREATE_DUPLICATE",
+		"CREATE_SUCCESS": "COLLECTION.CREATE_SUCCESS",
+		"ADD_ITEM_SUCCESS": "COLLECTION.ADD_ITEM_SUCCESS",
+		"ADD_ITEM_FAIL_DUPLICATE": "COLLECTION.ADD_ITEM_FAIL_DUPLICATE",
+		"DELETE_ITEM_SUCCESS": "COLLECTION.DELETE_ITEM_SUCCESS",
+		"DELETE_ITEM_NOT_FIND": "COLLECTION.DELETE_ITEM_NOT_FIND"
 	}
 }

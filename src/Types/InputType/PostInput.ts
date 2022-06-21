@@ -1,16 +1,15 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator-multi-lang';
+import { GraphQLUpload } from 'graphql-upload';
 import { Field, ID, InputType } from 'type-graphql';
+import { Upload } from '..';
 
 @InputType()
 export class CreatePostInput {
     @Field({ nullable: true })
     caption?: string;
 
-    @Field({ nullable: true })
-    image_link?: string;
-
-    @Field({ nullable: true })
-    video_link?: string;
+    @Field(() => [GraphQLUpload], { nullable: true })
+    files: Upload[]
 
     @Field({ nullable: true })
     youtube_link?: string;

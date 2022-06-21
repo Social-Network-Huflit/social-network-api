@@ -4,7 +4,9 @@ import { Logger } from '../../Configs';
 import { COOKIES_NAME } from '../../Constants';
 import { User } from '../../Entities';
 import {
+    ChangePasswordInput,
     Context,
+    IMutationResponse,
     LoginInput,
     RegisterInput,
     ServerInternal,
@@ -14,6 +16,9 @@ import ValidateInput from '../../Utils/Validation';
 import jwt from 'jsonwebtoken';
 import CheckLogged from '../../Utils/CheckLogged';
 import i18n from 'i18n';
+import SendGmail from '../../Utils/SendMail';
+import generateCode from '../../Utils/generateCode';
+import { TokenModel } from '../../Models/Token';
 
 @Resolver()
 export default class AuthResolver {
@@ -84,7 +89,6 @@ export default class AuthResolver {
     ): Promise<UserMutationResponse> {
         const { usernameOrEmail, password } = loginInput;
 
-
         if (await CheckLogged(req)) {
             return {
                 code: 400,
@@ -119,6 +123,13 @@ export default class AuthResolver {
                 };
             }
 
+            const token = jwt.sign(
+                {
+                    id: existingUser.id,
+                },
+                process.env.JWT_SECRET as string
+            );
+
             if (req.device?.type === 'desktop') {
                 req.session.userId = existingUser.id;
 
@@ -127,15 +138,9 @@ export default class AuthResolver {
                     success: true,
                     message: i18n.__('AUTH.LOGIN.SUCCESS'),
                     result: existingUser,
+                    token,
                 };
             } else {
-                const token = jwt.sign(
-                    {
-                        id: existingUser.id,
-                    },
-                    process.env.JWT_SECRET as string
-                );
-
                 return {
                     code: 200,
                     success: true,
@@ -163,5 +168,89 @@ export default class AuthResolver {
                 }
             });
         });
+    }
+
+    @Mutation(() => IMutationResponse)
+    async sendEmail(@Arg('email') email: string): Promise<IMutationResponse> {
+        try {
+            const existingUser = await User.findOne({
+                email,
+            });
+
+            if (!existingUser) {
+                return {
+                    code: 400,
+                    success: false,
+                    message: i18n.__('AUTH.FORGOT_PASSWORD.INVALID_EMAIL'),
+                };
+            }
+
+            const token = generateCode(4);
+
+            await new TokenModel({ userId: `${existingUser.id}`, token }).save();
+
+            await SendGmail(email, token);
+
+            return {
+                code: 200,
+                success: true,
+                message: 'SUCCESS',
+            };
+        } catch (error: any) {
+            throw new ServerInternal(error.message);
+        }
+    }
+
+    @Mutation(() => String, { nullable: true })
+    async sendCode(@Arg('code') token: string): Promise<string | null | undefined> {
+        const existingToken = await TokenModel.findOne({ token });
+
+        if (!existingToken) {
+            return null;
+        }
+
+        await TokenModel.findByIdAndDelete(existingToken._id);
+
+        return existingToken.userId;
+    }
+
+    @Mutation((_return) => IMutationResponse)
+    async changePassword(
+        @Arg('changePasswordInput') { newPassword, user_id }: ChangePasswordInput
+    ): Promise<IMutationResponse> {
+        try {
+            const user = await User.findOne(user_id);
+
+            if (!user) {
+                return {
+                    code: 403,
+                    success: false,
+                    message: i18n.__('AUTH.FIND_USER_FAIL'),
+                    errors: [{ field: 'user', message: i18n.__('AUTH.FIND_USER_FAIL') }],
+                };
+            }
+
+            await User.update(
+                {
+                    id: user_id,
+                },
+                {
+                    password: await await argon2.hash(newPassword),
+                }
+            );
+
+            return {
+                code: 200,
+                success: true,
+                message: i18n.__('AUTH.FORGOT_PASSWORD.CHANGE_PASSWORD_SUCCESS'),
+            };
+        } catch (error: any) {
+            Logger.error(error.message);
+            return {
+                code: 500,
+                message: error.message,
+                success: false,
+            };
+        }
     }
 }

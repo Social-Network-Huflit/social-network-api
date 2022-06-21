@@ -12,6 +12,10 @@ declare global {
             TYPEORM_DATABASE?: string;
             TYPEORM_URL?: string;
             BASE_URL?: string;
+            CLIENT_ID?: string;
+            CLIENT_SECRET?: string;
+            REDIRECT_URI?: string;
+            REFRESH_TOKEN?: string;
         }
     }
 }

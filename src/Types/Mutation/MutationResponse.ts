@@ -1,4 +1,6 @@
 import {
+    Collection,
+    CollectionDetail,
     Message,
     Post,
     PostComment,
@@ -97,3 +99,13 @@ export class ReplyCommentPostShareMutationResponse extends MutationResponse(
     implements: IMutationResponse
 })
 export class MessageMutationResponse extends MutationResponse(Message, 'chat_message') {}
+
+@ObjectType({
+    implements: IMutationResponse
+})
+export class CollectionMutationResponse extends MutationResponse(Collection, 'collection') {}
+
+@ObjectType({
+    implements: IMutationResponse
+})
+export class CollectionDetailMutationResponse extends MutationResponse(CollectionDetail, 'detail') {}

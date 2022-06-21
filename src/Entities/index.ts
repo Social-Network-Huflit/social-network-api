@@ -19,10 +19,13 @@ import PostShareReplyCommentLike from './PostShare/PostShareReplyCommentLike';
 import Message from './Chat/Message';
 import Room from './Chat/Room';
 import HistorySearch from './Auth/HistorySearch';
+import PostAsset from './Post/PostAsset';
+import Collection from './Collection/Collection';
+import CollectionDetail from './Collection/CollectionDetail';
 
 export { default as User } from './Auth/User';
 export { default as Follow } from './Auth/Follow';
-export {default as HistorySearch} from './Auth/HistorySearch'
+export { default as HistorySearch } from './Auth/HistorySearch';
 
 //Post
 export { default as Post } from './Post/Post';
@@ -31,6 +34,7 @@ export { default as PostComment } from './Post/PostComment';
 export { default as PostCommentLike } from './Post/PostCommentLike';
 export { default as PostReplyComment } from './Post/PostReplyComment';
 export { default as PostReplyCommentLike } from './Post/PostReplyCommentLike';
+export { default as PostAsset } from './Post/PostAsset';
 
 //Post Share
 export { default as PostShare } from './PostShare/PostShare';
@@ -43,6 +47,10 @@ export { default as PostShareReplyCommentLike } from './PostShare/PostShareReply
 //Chat
 export { default as Message } from './Chat/Message';
 export { default as Room } from './Chat/Room';
+
+//Collection
+export { default as Collection } from './Collection/Collection';
+export { default as CollectionDetail } from './Collection/CollectionDetail';
 
 export const entities = [
     User,
@@ -61,5 +69,8 @@ export const entities = [
     PostShareReplyCommentLike,
     Message,
     Room,
-    HistorySearch
+    HistorySearch,
+    PostAsset,
+    Collection,
+    CollectionDetail
 ];

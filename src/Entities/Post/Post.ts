@@ -11,7 +11,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { PostLike, User, PostComment, PostShare } from '..';
+import { PostLike, User, PostComment, PostShare, PostAsset, CollectionDetail } from '..';
 
 @Entity({ name: 'post' })
 @ObjectType()
@@ -23,14 +23,6 @@ export default class Post extends BaseEntity {
     @Field({ nullable: true })
     @Column({ nullable: true })
     caption: string;
-
-    @Field({ nullable: true })
-    @Column({ nullable: true })
-    image_link?: string;
-
-    @Field({ nullable: true })
-    @Column({ nullable: true })
-    video_link: string;
 
     @Field({ nullable: true })
     @Column({ nullable: true })
@@ -55,6 +47,13 @@ export default class Post extends BaseEntity {
     @Field(() => [PostShare])
     @OneToMany(() => PostShare, (post_share) => post_share.post)
     shares: PostShare[];
+
+    @Field(() => [PostAsset])
+    @OneToMany(() => PostAsset, (post_asset) => post_asset.post)
+    assets: PostAsset[];
+
+    @OneToMany(() => CollectionDetail, (collection) => collection.post)
+    collections: CollectionDetail[];
 
     @Field()
     @CreateDateColumn()
