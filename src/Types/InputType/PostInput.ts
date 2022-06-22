@@ -1,16 +1,15 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator-multi-lang';
-import { Field, InputType } from 'type-graphql';
+import { GraphQLUpload } from 'graphql-upload';
+import { Field, ID, InputType } from 'type-graphql';
+import { Upload } from '..';
 
 @InputType()
 export class CreatePostInput {
     @Field({ nullable: true })
     caption?: string;
 
-    @Field({ nullable: true })
-    image_link?: string;
-
-    @Field({ nullable: true })
-    video_link?: string;
+    @Field(() => [GraphQLUpload], { nullable: true })
+    files: Upload[]
 
     @Field({ nullable: true })
     youtube_link?: string;
@@ -18,7 +17,7 @@ export class CreatePostInput {
 
 @InputType()
 export class UpdatePostInput {
-    @Field()
+    @Field(() => ID)
     id: number;
 
     @Field({ nullable: true })
@@ -36,8 +35,7 @@ export class UpdatePostInput {
 
 @InputType()
 export class CreateCommentPostInput {
-    @Field()
-    @IsNumber()
+    @Field(() => ID)
     @IsNotEmpty()
     post_id: number;
 
@@ -49,8 +47,7 @@ export class CreateCommentPostInput {
 
 @InputType()
 export class UpdateCommentPostInput {
-    @Field()
-    @IsNumber()
+    @Field(() => ID)
     @IsNotEmpty()
     id: number;
 
@@ -62,8 +59,7 @@ export class UpdateCommentPostInput {
 
 @InputType()
 export class ReplyCommentPostInput {
-    @Field()
-    @IsNumber()
+    @Field(() => ID)
     @IsNotEmpty()
     comment_id: number;
 

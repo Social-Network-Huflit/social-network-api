@@ -1,4 +1,4 @@
-import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from 'type-graphql';
+import { Arg, Ctx, ID, Mutation, Resolver, UseMiddleware } from 'type-graphql';
 import { Logger } from '../../Configs';
 import {
     PostShare,
@@ -9,13 +9,13 @@ import {
     PostShareReplyCommentLike,
     User
 } from '../../Entities';
-import { POST } from '../../languages/i18n';
 import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     CommentPostShareMutationResponse,
     Context,
     CreateCommentPostShareInput,
     IMutationResponse,
+    PostShareMutationResponse,
     ReplyCommentPostShareInput,
     ReplyCommentPostShareMutationResponse,
     ServerInternal,
@@ -23,16 +23,18 @@ import {
 } from '../../Types';
 import UpdateEntity from '../../Utils/UpdateEntity';
 import ValidateInput from '../../Utils/Validation';
+import i18n from 'i18n'
 
 @Resolver()
 export default class InteractPostShareResolver {
     //Like post share
     @UseMiddleware(Authentication)
-    @Mutation(() => IMutationResponse)
+    @Mutation(() => PostShareMutationResponse)
     async likePostShare(
-        @Arg('post_share_id') post_share_id: number,
+        @Arg('post_share_id', () => ID) post_share_id: number,
+        @Arg("like_type") like_type: "like" | "haha" | "sad" | "wow" | "angry",
         @Ctx() { req }: Context
-    ): Promise<IMutationResponse> {
+    ): Promise<PostShareMutationResponse> {
         try {
             const owner = await User.getMyUser(req);
             const post_share = await PostShare.findOne({
@@ -43,7 +45,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__("POST.FIND_POST_FAIL"),
                 };
             }
 
@@ -54,8 +56,9 @@ export default class InteractPostShareResolver {
 
             if (!existingLike) {
                 const newLike = PostShareLike.create({
-                    post_share,
-                    owner,
+                    post_share_id: post_share.id,
+                    user_id: owner.id,
+                    like_type
                 });
 
                 await newLike.save();
@@ -63,7 +66,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: POST.LIKE_POST_SUCCESS,
+                    message: i18n.__("POST.LIKE_POST_SUCCESS"),
                 };
             } else {
                 await PostShareLike.remove(existingLike);
@@ -71,7 +74,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: POST.UNLIKE_POST_SUCCESS,
+                    message: i18n.__("POST.UNLIKE_POST_SUCCESS"),
                 };
             }
         } catch (error: any) {
@@ -102,7 +105,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__("POST.FIND_POST_FAIL"),
                 };
             }
 
@@ -115,7 +118,7 @@ export default class InteractPostShareResolver {
             return {
                 code: 201,
                 success: true,
-                message: POST.COMMENT_POST_SUCCESS,
+                message: i18n.__("POST.COMMENT_POST_SUCCESS"),
                 result: await newComment.save(),
             };
         } catch (error: any) {
@@ -144,7 +147,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_COMMENT_FAIL,
+                    message: i18n.__("POST.FIND_COMMENT_FAIL"),
                 };
             }
 
@@ -157,7 +160,7 @@ export default class InteractPostShareResolver {
             return {
                 code: 200,
                 success: true,
-                message: POST.UPDATE_COMMENT_SUCCESS,
+                message: i18n.__("POST.UPDATE_COMMENT_SUCCESS"),
                 result: updatedComment,
             };
         } catch (error: any) {
@@ -182,7 +185,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_COMMENT_FAIL,
+                    message: i18n.__("POST.FIND_COMMENT_FAIL"),
                 };
             }
 
@@ -194,7 +197,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__("POST.FIND_POST_FAIL"),
                 };
             }
 
@@ -209,13 +212,13 @@ export default class InteractPostShareResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: POST.DELETE_COMMENT_POST_SUCCESS,
+                    message: i18n.__("POST.DELETE_COMMENT_POST_SUCCESS"),
                 };
             } else {
                 return {
                     code: 401,
                     success: false,
-                    message: POST.DELETE_COMMENT_POST_FAIL,
+                    message: i18n.__("POST.DELETE_COMMENT_POST_FAIL"),
                 };
             }
         } catch (error: any) {
@@ -240,7 +243,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_COMMENT_FAIL,
+                    message: i18n.__("POST.FIND_COMMENT_FAIL"),
                 };
             }
 
@@ -252,7 +255,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_COMMENT_FAIL,
+                    message: i18n.__("POST.FIND_COMMENT_FAIL"),
                 };
             }
 
@@ -264,7 +267,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__("POST.FIND_POST_FAIL"),
                 };
             }
 
@@ -279,13 +282,13 @@ export default class InteractPostShareResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: POST.DELETE_COMMENT_POST_SUCCESS,
+                    message: i18n.__("POST.DELETE_COMMENT_POST_SUCCESS"),
                 };
             } else {
                 return {
                     code: 401,
                     success: false,
-                    message: POST.DELETE_COMMENT_POST_FAIL,
+                    message: i18n.__("POST.DELETE_COMMENT_POST_FAIL"),
                 };
             }
         } catch (error: any) {
@@ -296,11 +299,12 @@ export default class InteractPostShareResolver {
 
     //Like comment post share
     @UseMiddleware(Authentication)
-    @Mutation(() => IMutationResponse)
+    @Mutation(() => CommentPostShareMutationResponse)
     async likeCommentPostShare(
-        @Arg('comment_id') comment_id: number,
+        @Arg('comment_id', () => ID) comment_id: number,
+        @Arg("like_type") like_type: "like" | "haha" | "sad" | "wow" | "angry",
         @Ctx() { req }: Context
-    ): Promise<IMutationResponse> {
+    ): Promise<CommentPostShareMutationResponse> {
         try {
             const owner = await User.getMyUser(req);
             const comment = await PostShareComment.findOne({
@@ -311,7 +315,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_COMMENT_FAIL,
+                    message: i18n.__("POST.FIND_COMMENT_FAIL"),
                 };
             }
 
@@ -324,6 +328,7 @@ export default class InteractPostShareResolver {
                 const newLike = PostShareCommentLike.create({
                     comment,
                     owner,
+                    like_type
                 });
 
                 await newLike.save();
@@ -331,7 +336,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: POST.LIKE_COMMENT_SUCCESS,
+                    message: i18n.__("POST.LIKE_COMMENT_SUCCESS"),
                 };
             } else {
                 await PostShareCommentLike.remove(existingLike);
@@ -339,7 +344,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: POST.UNLIKE_COMMENT_SUCCESS,
+                    message: i18n.__("POST.UNLIKE_COMMENT_SUCCESS"),
                 };
             }
         } catch (error: any) {
@@ -368,7 +373,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_COMMENT_FAIL,
+                    message: i18n.__("POST.FIND_COMMENT_FAIL"),
                 };
             }
 
@@ -383,7 +388,7 @@ export default class InteractPostShareResolver {
             return {
                 code: 201,
                 success: true,
-                message: POST.REPLY_COMMENT_SUCCESS,
+                message: i18n.__("POST.REPLY_COMMENT_SUCCESS"),
                 result: await newReplyComment.save(),
             };
         } catch (error: any) {
@@ -394,11 +399,12 @@ export default class InteractPostShareResolver {
 
     //Like reply comment post
     @UseMiddleware(Authentication)
-    @Mutation(() => IMutationResponse)
+    @Mutation(() => ReplyCommentPostShareMutationResponse)
     async likeReplyCommentPostShare(
-        @Arg('reply_comment_id') reply_comment_id: number,
+        @Arg('reply_comment_id', () => ID) reply_comment_id: number,
+        @Arg("like_type") like_type: "like" | "haha" | "sad" | "wow" | "angry",
         @Ctx() { req }: Context
-    ): Promise<IMutationResponse> {
+    ): Promise<ReplyCommentPostShareMutationResponse> {
         try {
             const owner = await User.getMyUser(req);
             const reply_comment = await PostShareReplyComment.findOne({
@@ -409,7 +415,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_COMMENT_FAIL,
+                    message: i18n.__("POST.FIND_COMMENT_FAIL"),
                 };
             }
 
@@ -422,6 +428,7 @@ export default class InteractPostShareResolver {
                 const newLike = PostShareReplyCommentLike.create({
                     reply_comment,
                     owner,
+                    like_type
                 });
 
                 await newLike.save();
@@ -429,7 +436,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: POST.LIKE_COMMENT_SUCCESS,
+                    message: i18n.__("POST.LIKE_COMMENT_SUCCESS"),
                 };
             } else {
                 await PostShareReplyCommentLike.remove(existingLike);
@@ -437,7 +444,7 @@ export default class InteractPostShareResolver {
                 return {
                     code: 200,
                     success: true,
-                    message: POST.UNLIKE_COMMENT_SUCCESS,
+                    message: i18n.__("POST.UNLIKE_COMMENT_SUCCESS"),
                 };
             }
         } catch (error: any) {

@@ -13,6 +13,7 @@ import {
 import { User } from '..';
 
 @Entity()
+@ObjectType()
 export default class Follow extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;

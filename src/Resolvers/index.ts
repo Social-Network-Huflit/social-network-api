@@ -1,20 +1,26 @@
 import { NonEmptyArray } from 'type-graphql';
 import AuthResolver from './Auth/AuthResolver';
+import HistorySearchResolver from './Auth/HistorySearchResolver';
 import UserResolver from './Auth/UserResolver';
-import PostResolver from './Post/PostResolver';
+import MessageResolver from './Chat/MessageResolver';
+import RoomResolver from './Chat/RoomResolver';
+import CollectionDetailResolver from './Collection/CollectionDetailResolver';
+import CollectionResolver from './Collection/CollectionResolver';
 import InteractPostResolver from './Post/InteractPostResolver';
-import PostShareResolver from './PostShare/PostShareResolver';
-import InteractPostShareResolver from './PostShare/InteractPostShareResolver';
-import PostLikeResolver from './Post/PostLikeResolver';
-import PostCommentResolver from './Post/PostCommentResolver';
 import PostCommentLikeResolver from './Post/PostCommentLikeResolver';
-import PostReplyCommentResolver from './Post/PostReplyCommentResolver';
+import PostCommentResolver from './Post/PostCommentResolver';
+import PostLikeResolver from './Post/PostLikeResolver';
 import PostReplyCommentLikeResolver from './Post/PostReplyCommentLikeResolver';
-import PostShareLikeResolver from './PostShare/PostShareLikeResolver';
-import PostShareCommentResolver from './PostShare/PostShareCommentResolver';
+import PostReplyCommentResolver from './Post/PostReplyCommentResolver';
+import PostResolver from './Post/PostResolver';
+import InteractPostShareResolver from './PostShare/InteractPostShareResolver';
 import PostShareCommentLikeResolver from './PostShare/PostShareCommentLikeResolver';
-import PostShareReplyCommentResolver from './PostShare/PostShareReplyCommentResolver';
+import PostShareCommentResolver from './PostShare/PostShareCommentResolver';
+import PostShareLikeResolver from './PostShare/PostShareLikeResolver';
 import PostShareReplyCommentLikeResolver from './PostShare/PostShareReplyCommentLikeResolver';
+import PostShareReplyCommentResolver from './PostShare/PostShareReplyCommentResolver';
+import PostShareResolver from './PostShare/PostShareResolver';
+import UploadResolver from './Upload/UploadResolver';
 
 const resolvers: NonEmptyArray<Function> = [
     AuthResolver,
@@ -33,6 +39,12 @@ const resolvers: NonEmptyArray<Function> = [
     PostShareReplyCommentLikeResolver,
     InteractPostResolver,
     InteractPostShareResolver,
+    MessageResolver,
+    RoomResolver,
+    UploadResolver,
+    HistorySearchResolver,
+    CollectionResolver,
+    CollectionDetailResolver
 ];
 
 export default resolvers;

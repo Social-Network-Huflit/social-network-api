@@ -1,20 +1,45 @@
-import { Arg, Ctx, FieldResolver, Mutation, Resolver, Root, UseMiddleware } from 'type-graphql';
+import {
+    Arg,
+    Ctx,
+    FieldResolver,
+    ID,
+    Mutation,
+    Query,
+    Resolver,
+    Root,
+    UseMiddleware,
+} from 'type-graphql';
 import { Logger } from '../../Configs';
 import { Post, PostShare, PostShareComment, PostShareLike, User } from '../../Entities';
-import { POST, POST_SHARE } from '../../languages/i18n';
 import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     Context,
     CreatePostShareInput,
     PostShareMutationResponse,
     ServerInternal,
-    UpdatePostShareInput
+    UpdatePostShareInput,
 } from '../../Types';
 import UpdateEntity from '../../Utils/UpdateEntity';
 import ValidateInput from '../../Utils/Validation';
+import i18n from 'i18n';
+import moment from 'moment';
 
 @Resolver(() => PostShare)
 export default class PostShareResolver {
+    //post_type
+    @FieldResolver(() => String)
+    post_type() {
+        return 'post_share';
+    }
+
+    //post
+    @FieldResolver(() => Post, { nullable: true })
+    async post(@Root() post_share: PostShare): Promise<Post | null | undefined> {
+        const post = await Post.findOne(post_share.post_id);
+
+        return post;
+    }
+
     //owner
     @FieldResolver(() => User, { nullable: true })
     async owner(@Root() root: PostShare): Promise<User | null | undefined> {
@@ -27,16 +52,72 @@ export default class PostShareResolver {
     @FieldResolver(() => [PostShareComment])
     async comments(@Root() root: PostShare): Promise<PostShareComment[]> {
         return await PostShareComment.find({
-            post_share_id: root.id,
+            where: { post_share_id: root.id },
+            order: {
+                createdAt: 'DESC',
+            },
         });
+    }
+
+    @FieldResolver(() => Number)
+    async comment_count(@Root() root: PostShare): Promise<number> {
+        return (await this.comments(root)).length;
     }
 
     //likes
     @FieldResolver(() => [PostShareLike])
     async likes(@Root() root: PostShare): Promise<PostShareLike[]> {
         return await PostShareLike.find({
+            where: { post_share_id: root.id },
+            order: {
+                createdAt: 'DESC',
+            },
+        });
+    }
+
+    //liked
+    @FieldResolver(() => Boolean)
+    async liked(@Root() root: PostShare, @Ctx() { req }: Context): Promise<boolean> {
+        const user = await User.getMyUser(req);
+
+        const like = await PostShareLike.findOne({
+            user_id: user.id,
             post_share_id: root.id,
         });
+
+        return like !== undefined;
+    }
+
+    //like_type
+    @FieldResolver(() => String, { nullable: true })
+    async like_type(
+        @Root() root: PostShare,
+        @Ctx() { req }: Context
+    ): Promise<string | null | undefined> {
+        const user = await User.getMyUser(req);
+
+        const like = await PostShareLike.findOne({
+            user_id: user.id,
+            post_share_id: root.id,
+        });
+
+        if (like !== undefined) {
+            return like.like_type;
+        }
+
+        return undefined;
+    }
+
+    //like_count
+    @FieldResolver(() => Number)
+    async like_count(@Root() root: PostShare): Promise<number> {
+        return (await this.likes(root)).length;
+    }
+
+    //timestamp
+    @FieldResolver(() => String)
+    timestamp(@Root() post: Post): string {
+        return moment(post.createdAt).fromNow();
     }
 
     //Create Post Share
@@ -61,7 +142,7 @@ export default class PostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__('POST.FIND_POST_FAIL'),
                 };
             }
 
@@ -73,7 +154,7 @@ export default class PostShareResolver {
             return {
                 code: 200,
                 success: true,
-                message: POST_SHARE.CREATE_POST_SHARE_SUCCESS,
+                message: i18n.__('POST_SHARE.CREATE_POST_SHARE_SUCCESS'),
                 result: await newPostShare.save(),
             };
         } catch (error: any) {
@@ -105,7 +186,7 @@ export default class PostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__('POST.FIND_POST_FAIL'),
                 };
             }
 
@@ -114,7 +195,7 @@ export default class PostShareResolver {
             return {
                 code: 200,
                 success: true,
-                message: POST.UPDATE_POST_SUCCESS,
+                message: i18n.__('POST.UPDATE_POST_SUCCESS'),
                 result: updatedPost,
             };
         } catch (error: any) {
@@ -142,7 +223,7 @@ export default class PostShareResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: POST.FIND_POST_FAIL,
+                    message: i18n.__('POST.FIND_POST_FAIL'),
                 };
             }
 
@@ -151,11 +232,19 @@ export default class PostShareResolver {
             return {
                 code: 200,
                 success: true,
-                message: POST.DELETE_POST_SUCCESS,
+                message: i18n.__('POST.DELETE_POST_SUCCESS'),
             };
         } catch (error: any) {
             Logger.error(error);
             throw new ServerInternal(error.message);
         }
+    }
+
+    //Get Post Share
+    @Query(() => PostShare, { nullable: true })
+    async getPostShare(
+        @Arg('post_id', () => ID) post_id: number
+    ): Promise<PostShare | null | undefined> {
+        return await PostShare.findOne(post_id);
     }
 }

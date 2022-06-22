@@ -1,8 +1,19 @@
-import { Post, PostComment, PostReplyComment, PostShare, PostShareComment, User } from '../../Entities';
+import {
+    Collection,
+    CollectionDetail,
+    Message,
+    Post,
+    PostComment,
+    PostReplyComment,
+    PostShare,
+    PostShareComment,
+    User,
+} from '../../Entities';
 import { FieldError } from '..';
-import { ClassType, Field, ObjectType } from 'type-graphql';
+import { ClassType, Field, InterfaceType, ObjectType } from 'type-graphql';
 
-@ObjectType()
+@InterfaceType()
+@ObjectType('MutationResponse')
 export abstract class IMutationResponse {
     @Field()
     code!: number;
@@ -37,23 +48,64 @@ function MutationResponse<T extends ClassType>(ModelClass: T, field: string) {
     return ModelMutationResponse;
 }
 
-@ObjectType()
-export class UserMutationResponse extends MutationResponse(User, "user") {}
+@ObjectType({
+    implements: IMutationResponse
+})
+export class UserMutationResponse extends MutationResponse(User, 'user') {
+    @Field({ nullable: true })
+    token?: string;
+}
 
-@ObjectType()
-export class PostMutationResponse extends MutationResponse(Post, "post") {}
+@ObjectType({
+    implements: IMutationResponse
+})
+export class PostMutationResponse extends MutationResponse(Post, 'post') {}
 
-@ObjectType()
-export class CommentMutationResponse extends MutationResponse(PostComment, "comment"){}
+@ObjectType({
+    implements: IMutationResponse
+})
+export class CommentMutationResponse extends MutationResponse(PostComment, 'comment') {}
 
-@ObjectType()
-export class ReplyCommentMutationResponse extends MutationResponse(PostReplyComment, "reply_comment"){}
+@ObjectType({
+    implements: IMutationResponse
+})
+export class ReplyCommentMutationResponse extends MutationResponse(
+    PostReplyComment,
+    'reply_comment'
+) {}
 
-@ObjectType()
-export class PostShareMutationResponse extends MutationResponse(PostShare, "post") {}
+@ObjectType({
+    implements: IMutationResponse
+})
+export class PostShareMutationResponse extends MutationResponse(PostShare, 'post') {}
 
-@ObjectType()
-export class CommentPostShareMutationResponse extends MutationResponse(PostShareComment, "comment"){}
+@ObjectType({
+    implements: IMutationResponse
+})
+export class CommentPostShareMutationResponse extends MutationResponse(
+    PostShareComment,
+    'comment'
+) {}
 
-@ObjectType()
-export class ReplyCommentPostShareMutationResponse extends MutationResponse(PostReplyComment, "reply_comment"){}
+@ObjectType({
+    implements: IMutationResponse
+})
+export class ReplyCommentPostShareMutationResponse extends MutationResponse(
+    PostReplyComment,
+    'reply_comment'
+) {}
+
+@ObjectType({
+    implements: IMutationResponse
+})
+export class MessageMutationResponse extends MutationResponse(Message, 'chat_message') {}
+
+@ObjectType({
+    implements: IMutationResponse
+})
+export class CollectionMutationResponse extends MutationResponse(Collection, 'collection') {}
+
+@ObjectType({
+    implements: IMutationResponse
+})
+export class CollectionDetailMutationResponse extends MutationResponse(CollectionDetail, 'detail') {}

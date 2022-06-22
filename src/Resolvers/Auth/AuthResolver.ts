@@ -3,9 +3,22 @@ import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
 import { Logger } from '../../Configs';
 import { COOKIES_NAME } from '../../Constants';
 import { User } from '../../Entities';
-import { AUTH } from '../../languages/i18n';
-import { Context, LoginInput, RegisterInput, ServerInternal, UserMutationResponse } from '../../Types';
+import {
+    ChangePasswordInput,
+    Context,
+    IMutationResponse,
+    LoginInput,
+    RegisterInput,
+    ServerInternal,
+    UserMutationResponse,
+} from '../../Types';
 import ValidateInput from '../../Utils/Validation';
+import jwt from 'jsonwebtoken';
+import CheckLogged from '../../Utils/CheckLogged';
+import i18n from 'i18n';
+import SendGmail from '../../Utils/SendMail';
+import generateCode from '../../Utils/generateCode';
+import { TokenModel } from '../../Models/Token';
 
 @Resolver()
 export default class AuthResolver {
@@ -15,7 +28,7 @@ export default class AuthResolver {
         @Arg('registerInput') registerInput: RegisterInput,
         @Ctx() { req }: Context
     ): Promise<UserMutationResponse> {
-        const { username, email, password } = registerInput;
+        const { username, email, password, phoneNumber } = registerInput;
 
         try {
             const validate = await ValidateInput(req, registerInput);
@@ -25,20 +38,25 @@ export default class AuthResolver {
             }
 
             const existingUser = await User.findOne({
-                where: [{ username }, { email }],
+                where: [{ username }, { email }, { phoneNumber }],
             });
 
             if (existingUser) {
+                let field =
+                    existingUser.username === username
+                        ? 'username'
+                        : existingUser.email === email
+                        ? 'email'
+                        : 'phoneNumber';
+
                 return {
                     code: 400,
-                    message: AUTH.REGISTER.DUPLICATE,
+                    message: i18n.__('AUTH.REGISTER.DUPLICATE'),
                     success: false,
                     errors: [
                         {
-                            field: existingUser.username === username ? 'username' : 'email',
-                            message: `${
-                                existingUser.username === username ? 'Username' : 'Email'
-                            } ${AUTH.REGISTER.EXIST}`,
+                            field,
+                            message: `${field.toUpperCase()} already exist`,
                         },
                     ],
                 };
@@ -54,7 +72,7 @@ export default class AuthResolver {
             return {
                 code: 201,
                 success: true,
-                message: AUTH.REGISTER.SUCCESS,
+                message: i18n.__('AUTH.REGISTER.SUCCESS'),
                 result: await newUser.save(),
             };
         } catch (error: any) {
@@ -70,6 +88,15 @@ export default class AuthResolver {
         @Ctx() { req }: Context
     ): Promise<UserMutationResponse> {
         const { usernameOrEmail, password } = loginInput;
+
+        if (await CheckLogged(req)) {
+            return {
+                code: 400,
+                success: false,
+                message: 'You have to logout first',
+            };
+        }
+
         try {
             const validate = await ValidateInput(req, loginInput);
 
@@ -85,24 +112,43 @@ export default class AuthResolver {
                 return {
                     code: 400,
                     success: false,
-                    message: AUTH.LOGIN.INVALID.INDEX,
+                    message: i18n.__('AUTH.LOGIN.INVALID.INDEX'),
                     errors: [
                         {
                             field: 'usernameOrEmail',
-                            message: AUTH.LOGIN.INVALID.USERNAME_EMAIL,
+                            message: i18n.__('AUTH.LOGIN.INVALID.USERNAME_EMAIL'),
                         },
-                        { field: 'password', message: AUTH.LOGIN.INVALID.PASSWORD },
+                        { field: 'password', message: i18n.__('AUTH.LOGIN.INVALID.PASSWORD') },
                     ],
                 };
             }
 
-            req.session.userId = existingUser.id;
+            const token = jwt.sign(
+                {
+                    id: existingUser.id,
+                },
+                process.env.JWT_SECRET as string
+            );
 
-            return {
-                code: 200,
-                success: true,
-                message: AUTH.LOGIN.SUCCESS,
-            };
+            if (req.device?.type === 'desktop') {
+                req.session.userId = existingUser.id;
+
+                return {
+                    code: 200,
+                    success: true,
+                    message: i18n.__('AUTH.LOGIN.SUCCESS'),
+                    result: existingUser,
+                    token,
+                };
+            } else {
+                return {
+                    code: 200,
+                    success: true,
+                    message: i18n.__('AUTH.LOGIN.SUCCESS'),
+                    token: `Bearer ${token}`,
+                    result: existingUser,
+                };
+            }
         } catch (error: any) {
             Logger.error(error.message);
             throw new ServerInternal(error.message);
@@ -122,5 +168,89 @@ export default class AuthResolver {
                 }
             });
         });
+    }
+
+    @Mutation(() => IMutationResponse)
+    async sendEmail(@Arg('email') email: string): Promise<IMutationResponse> {
+        try {
+            const existingUser = await User.findOne({
+                email,
+            });
+
+            if (!existingUser) {
+                return {
+                    code: 400,
+                    success: false,
+                    message: i18n.__('AUTH.FORGOT_PASSWORD.INVALID_EMAIL'),
+                };
+            }
+
+            const token = generateCode(4);
+
+            await new TokenModel({ userId: `${existingUser.id}`, token }).save();
+
+            await SendGmail(email, token);
+
+            return {
+                code: 200,
+                success: true,
+                message: 'SUCCESS',
+            };
+        } catch (error: any) {
+            throw new ServerInternal(error.message);
+        }
+    }
+
+    @Mutation(() => String, { nullable: true })
+    async sendCode(@Arg('code') token: string): Promise<string | null | undefined> {
+        const existingToken = await TokenModel.findOne({ token });
+
+        if (!existingToken) {
+            return null;
+        }
+
+        await TokenModel.findByIdAndDelete(existingToken._id);
+
+        return existingToken.userId;
+    }
+
+    @Mutation((_return) => IMutationResponse)
+    async changePassword(
+        @Arg('changePasswordInput') { newPassword, user_id }: ChangePasswordInput
+    ): Promise<IMutationResponse> {
+        try {
+            const user = await User.findOne(user_id);
+
+            if (!user) {
+                return {
+                    code: 403,
+                    success: false,
+                    message: i18n.__('AUTH.FIND_USER_FAIL'),
+                    errors: [{ field: 'user', message: i18n.__('AUTH.FIND_USER_FAIL') }],
+                };
+            }
+
+            await User.update(
+                {
+                    id: user_id,
+                },
+                {
+                    password: await await argon2.hash(newPassword),
+                }
+            );
+
+            return {
+                code: 200,
+                success: true,
+                message: i18n.__('AUTH.FORGOT_PASSWORD.CHANGE_PASSWORD_SUCCESS'),
+            };
+        } catch (error: any) {
+            Logger.error(error.message);
+            return {
+                code: 500,
+                message: error.message,
+                success: false,
+            };
+        }
     }
 }

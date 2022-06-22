@@ -1,6 +1,21 @@
-import { Ctx, FieldResolver, Query, Resolver, Root, UseMiddleware } from 'type-graphql';
+import { AuthenticationError } from 'apollo-server-core';
+import i18n from 'i18n';
 import {
+    Arg,
+    Ctx,
+    FieldResolver,
+    ID,
+    Mutation,
+    Query,
+    Resolver,
+    Root,
+    UseMiddleware,
+} from 'type-graphql';
+import { In, Like, Not, Raw } from 'typeorm';
+import {
+    Collection,
     Follow,
+    HistorySearch,
     Post,
     PostComment,
     PostCommentLike,
@@ -13,10 +28,11 @@ import {
     PostShareLike,
     PostShareReplyComment,
     PostShareReplyCommentLike,
-    User
+    Room,
+    User,
 } from '../../Entities';
 import { Authentication } from '../../Middlewares/Auth.middleware';
-import { Context } from '../../Types';
+import { Context, UserMutationResponse } from '../../Types';
 
 @Resolver(() => User)
 export default class UserResolver {
@@ -25,6 +41,17 @@ export default class UserResolver {
     async posts(@Root() root: User): Promise<Post[]> {
         return await Post.find({
             user_id: root.id,
+        });
+    }
+
+    //history
+    @FieldResolver(() => [HistorySearch])
+    async history(@Root() root: User): Promise<HistorySearch[]> {
+        return await HistorySearch.find({
+            where: { user_id_1: root.id },
+            order: {
+                updatedAt: 'DESC',
+            },
         });
     }
 
@@ -84,6 +111,14 @@ export default class UserResolver {
         });
     }
 
+    //collections
+    @FieldResolver(() => [Collection])
+    async collections(@Root() root: User): Promise<Collection[]> {
+        return await Collection.find({
+            user_id: root.id,
+        });
+    }
+
     //likes_comment_post_share
     @FieldResolver(() => [PostShareCommentLike])
     async likes_comment_post_share(@Root() root: User): Promise<PostShareCommentLike[]> {
@@ -119,28 +154,184 @@ export default class UserResolver {
     //following
     @FieldResolver(() => [User])
     async following(@Root() root: User): Promise<User[]> {
+        const result: User[] = [];
+
         const follows = await Follow.find({
             user_1: root.id,
         });
 
-        return follows.map((follow) => follow.following);
+        for (let i = 0; i < follows.length; i++) {
+            const element = follows[i];
+
+            const user = await User.findOne(element.user_2);
+
+            if (user) {
+                result.push(user);
+            }
+        }
+
+        return result;
     }
 
     //followers
     @FieldResolver(() => [User])
     async followers(@Root() root: User): Promise<User[]> {
+        const result: User[] = [];
+
         const follows = await Follow.find({
             user_2: root.id,
         });
 
-        return follows.map((follow) => follow.followers);
+        for (let i = 0; i < follows.length; i++) {
+            const element = follows[i];
+
+            const user = await User.findOne(element.user_1);
+
+            if (user) {
+                result.push(user);
+            }
+        }
+
+        return result;
+    }
+
+    //isFollowed
+    @FieldResolver(() => Boolean)
+    async isFollowed(@Root() root: User, @Ctx() { req }: Context): Promise<boolean> {
+        const user = await User.getMyUser(req);
+
+        const follow = await Follow.findOne({
+            user_1: user.id,
+            user_2: root.id,
+        });
+
+        return follow != undefined;
+    }
+
+    //rooms
+    @FieldResolver(() => [Room])
+    async rooms(@Root() user: User): Promise<Room[]> {
+        return await user.rooms;
     }
 
     //Get My user
     @UseMiddleware(Authentication)
     @Query(() => User, { nullable: true })
     async getMyUser(@Ctx() { req }: Context): Promise<User | null | undefined> {
-        const user = await User.findOne(req.session.userId);
+        return User.getMyUser(req);
+    }
+
+    //Get All User (Test)
+    @UseMiddleware(Authentication)
+    @Query(() => [User])
+    async getAllUser(@Ctx() { req }: Context): Promise<User[]> {
+        return await User.find();
+    }
+
+    //Follow User
+    @UseMiddleware(Authentication)
+    @Mutation(() => UserMutationResponse)
+    async followUser(
+        @Arg('user_id', () => ID) user_id: number,
+        @Ctx() { req }: Context
+    ): Promise<UserMutationResponse> {
+        const myUser = await User.getMyUser(req);
+        const followUser = await User.findOne(user_id);
+
+        if (myUser.id === user_id) {
+            return {
+                code: 400,
+                success: false,
+                message: i18n.__('USER.FOLLOW_FAIL'),
+            };
+        }
+
+        if (!followUser) {
+            throw new AuthenticationError(i18n.__('AUTH.FIND_USER_FAIL'));
+        }
+
+        const existingFollow = await Follow.findOne({
+            user_1: myUser.id,
+            user_2: followUser.id,
+        });
+
+        if (existingFollow) {
+            await Follow.remove(existingFollow);
+
+            return {
+                code: 200,
+                success: true,
+                message: i18n.__('USER.UNFOLLOW_SUCCESS'),
+            };
+        } else {
+            const follow = Follow.create({
+                user_1: myUser.id,
+                user_2: followUser.id,
+            });
+
+            await follow.save();
+
+            return {
+                code: 201,
+                success: true,
+                message: i18n.__('USER.FOLLOW_SUCCESS'),
+                result: followUser,
+            };
+        }
+    }
+
+    @UseMiddleware(Authentication)
+    @Query(() => User)
+    async getUserById(
+        @Arg('user_id', () => ID) user_id: number,
+        @Ctx() { req }: Context
+    ): Promise<User> {
+        const myUser = await User.getMyUser(req);
+
+        if (myUser.id === user_id) {
+            throw new AuthenticationError('Can not get your own profile');
+        }
+
+        const user = await User.findOne(user_id);
+
+        if (!user) {
+            throw new AuthenticationError('Can not find profile');
+        }
+
         return user;
+    }
+
+    @UseMiddleware(Authentication)
+    @Query(() => [User])
+    async searchUser(@Arg('content') content: string, @Ctx() { req }: Context): Promise<User[]> {
+        const myUser = await User.getMyUser(req);
+
+        const users = await User.find({
+            where: [
+                { username: Raw((alias) => `LOWER(${alias}) LIKE '%${content.toLowerCase()}%'`) },
+                { email: Raw((alias) => `LOWER(${alias}) LIKE '%${content.toLowerCase()}%'`) },
+                { name: Raw((alias) => `LOWER(${alias}) LIKE '%${content.toLowerCase()}%'`) },
+            ],
+        });
+
+        return users.filter((user) => user.id !== myUser.id);
+    }
+
+    @UseMiddleware(Authentication)
+    @Query(() => [User])
+    async getSuggestionUser(@Ctx() { req }: Context): Promise<User[]> {
+        const myUser = await User.getMyUser(req);
+
+        const follows = await Follow.find({
+            user_1: myUser.id,
+        });
+
+        const list_id = follows.map((item) => item.user_2).concat(myUser.id);
+
+        const users = await User.find({
+            id: Not(In(list_id)),
+        });
+
+        return users.slice(0, 10);
     }
 }

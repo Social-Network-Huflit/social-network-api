@@ -5,12 +5,17 @@ import {
     CreateDateColumn,
     DeleteDateColumn,
     Entity,
+    JoinTable,
+    ManyToMany,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
 import {
+    Collection,
     Follow,
+    HistorySearch,
+    Message,
     Post,
     PostComment,
     PostCommentLike,
@@ -23,11 +28,14 @@ import {
     PostShareLike,
     PostShareReplyComment,
     PostShareReplyCommentLike,
+    Room,
 } from '..';
 import { DEFAULT_AVATAR } from '../../Constants';
 import { Request } from '../../Types';
 import { AuthenticationError } from 'apollo-server-core';
 import i18n from 'i18n';
+import jwt from 'jsonwebtoken'
+import { Logger } from '../../Configs';
 
 @ObjectType()
 @Entity({ name: 'user' })
@@ -118,6 +126,36 @@ export default class User extends BaseEntity {
     @OneToMany(() => Follow, (follow) => follow.following)
     followers: User[];
 
+    @Field(() => [HistorySearch])
+    @ManyToMany(() => HistorySearch, history => history.owner)
+    history: HistorySearch[]
+
+    @ManyToMany(() => HistorySearch, history => history.user)
+    history_2: HistorySearch[]
+
+    @ManyToMany(() => Room, (room) => room.members)
+    @JoinTable({
+        name: 'room_members',
+    })
+    @Field(() => [Room])
+    rooms: Promise<Room[]>;
+
+    @OneToMany(() => Message, (message) => message.sender)
+    sent_messages: Message[];
+
+    @OneToMany(() => Message, (message) => message.sender)
+    received_messages: Message[];
+
+    @ManyToMany(() => Message, (message) => message.seen)
+    @JoinTable({
+        name: 'seen_message',
+    })
+    seen_messages: Promise<Message[]>;
+
+    @OneToMany(() => Collection, collection => collection.owner)
+    @Field(() => [Collection])
+    collections: Collection[];
+
     @Field()
     @CreateDateColumn()
     createdAt: Date;
@@ -130,12 +168,30 @@ export default class User extends BaseEntity {
     deletedAt: Date;
 
     public static async getMyUser(req: Request): Promise<User> {
+        let userId = req.session.userId;
+
+        if (req.device?.type === "phone"){
+            const bearerToken = req.headers.authorization;
+
+        const token = bearerToken?.replace('Bearer ', '');
+
+        if (token) {
+            jwt.verify(token, process.env.JWT_SECRET as string, (err, decode: any) => {
+                if (err) {
+                    Logger.error(err);
+                } else {
+                    userId = decode.id;
+                }
+            });
+        }
+        }
+
         const user = await User.findOne({
-            id: req.session.userId,
+            where: {id: userId}
         });
 
         if (!user) {
-            throw new AuthenticationError(i18n.__('AUTH.FIND_USER_FAIL'));
+            throw new AuthenticationError(i18n.__("AUTH.FIND_USER_FAIL"));
         }
 
         return user;

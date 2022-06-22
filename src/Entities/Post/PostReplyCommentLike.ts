@@ -32,6 +32,10 @@ export default class PostReplyCommentLike extends BaseEntity {
     @JoinColumn({ name: 'user_id' })
     owner: User;
 
+    @Field(() => String)
+    @Column()
+    like_type: string;
+
     @Column()
     user_id: number;
 

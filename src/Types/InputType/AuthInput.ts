@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString, IsNumberString } from 'class-validator-multi-lang';
-import { Field, InputType } from 'type-graphql';
+import { Field, ID, InputType } from 'type-graphql';
 
 @InputType()
 export class RegisterInput {
@@ -41,4 +41,16 @@ export class LoginInput {
     @IsString()
     @IsNotEmpty()
     password!: string;
+}
+
+@InputType()
+export class ChangePasswordInput {
+    @Field(() => ID)
+    @IsNotEmpty()
+    user_id!: number;
+
+    @Field()
+    @IsString()
+    @IsNotEmpty()
+    newPassword!: string;
 }

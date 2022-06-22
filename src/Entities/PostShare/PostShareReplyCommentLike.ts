@@ -33,6 +33,10 @@ export default class PostShareReplyCommentLike extends BaseEntity {
     @JoinColumn({ name: 'user_id' })
     owner: User;
 
+    @Field()
+    @Column()
+    like_type: string;
+
     @Column()
     user_id: number;
 
