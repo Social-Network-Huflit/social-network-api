@@ -20,26 +20,17 @@ export default class Room extends BaseEntity {
     @Field(() => ID)
     id: number;
 
-    @Column({ nullable: true })
-    @Field({ nullable: true })
-    name: string;
-
-    @Column({ nullable: true })
-    @Field({ nullable: true })
-    avatar: string;
-
-    @Column()
     @Field()
     last_message: string;
 
-    @ManyToMany(() => User, user => user.rooms)
+    @ManyToMany(() => User, (user) => user.rooms)
     @JoinTable({
-        name: "room_members"
+        name: 'room_members',
     })
     @Field(() => [User])
     members: Promise<User[]>;
 
-    @OneToMany(() => Message, message => message.room)
+    @OneToMany(() => Message, (message) => message.room)
     @Field(() => [Message])
     messages: Message[];
 

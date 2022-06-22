@@ -32,7 +32,9 @@ import {
     User,
 } from '../../Entities';
 import { Authentication } from '../../Middlewares/Auth.middleware';
-import { Context, UserMutationResponse } from '../../Types';
+import { Context, EditUserInput, UserMutationResponse } from '../../Types';
+import _ from 'lodash';
+import uploadFile from '../../Utils/UploadFile';
 
 @Resolver(() => User)
 export default class UserResolver {
@@ -333,5 +335,46 @@ export default class UserResolver {
         });
 
         return users.slice(0, 10);
+    }
+
+    @UseMiddleware(Authentication)
+    @Mutation(() => UserMutationResponse)
+    async editUser(
+        @Ctx() { req }: Context,
+        @Arg('editUserInput') input: EditUserInput
+    ): Promise<UserMutationResponse> {
+        const user = await User.getMyUser(req);
+        let { avatar, background } = user;
+
+        if (input.avatar_file) {
+            avatar = await uploadFile(await input.avatar_file);
+        }
+
+        if (input.background_file) {
+            background = await uploadFile(await input.background_file);
+        }
+
+        delete input.avatar_file;
+        delete input.background_file;
+
+        const updatedUser = _.extend(user, {
+            ...input,
+            avatar,
+            background,
+        });
+
+        await User.update(
+            {
+                id: user.id,
+            },
+            updatedUser
+        );
+
+        return {
+            code: 200,
+            success: true,
+            message: 'SUCCESS',
+            result: updatedUser,
+        };
     }
 }

@@ -63,6 +63,10 @@ export default class User extends BaseEntity {
     @Column()
     phoneNumber: string;
 
+    @Field({nullable: true})
+    @Column({nullable: true, default: "http://localhost:4000/background.jpeg"})
+    background: string;
+
     @Field()
     @Column({ default: DEFAULT_AVATAR })
     avatar: string;
