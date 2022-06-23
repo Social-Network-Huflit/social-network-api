@@ -47,7 +47,7 @@ export default class RoomResolver {
 
     @FieldResolver(() => String)
     timestamp(@Root() room: Room, @Ctx() { req }: Context): string {
-        return moment(room.createdAt).fromNow();
+        return moment(room.updatedAt).fromNow();
     }
 
     @FieldResolver(() => String)

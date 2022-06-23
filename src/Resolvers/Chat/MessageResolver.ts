@@ -56,7 +56,7 @@ export default class MessageResolver {
         @PubSub() pubSub: PubSubEngine
     ): Promise<MessageMutationResponse> {
         const { content, room_id, to_id } = createMessageInput;
-        const { userId } = req.session;
+        const userId = (await User.getMyUser(req)).id;
 
         if (userId === to_id) {
             return {

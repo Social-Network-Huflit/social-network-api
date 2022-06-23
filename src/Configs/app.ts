@@ -7,6 +7,9 @@ import { COOKIES_NAME, MONGO_DB_URL, __prod__ } from '../Constants';
 import i18n from 'i18n';
 import cors from 'cors';
 
+import moment from 'moment';
+
+
 const device = require('express-device');
 const app = express();
 
@@ -44,5 +47,6 @@ app.use(i18n.init);
 app.use(device.capture());
 app.use(graphqlUploadExpress());
 app.use(express.static(join(__dirname, '../public')));
+moment.locale("vi")
 
 export default app;
