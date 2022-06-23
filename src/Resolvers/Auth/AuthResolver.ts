@@ -1,5 +1,5 @@
 import argon2 from 'argon2';
-import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
+import { Arg, Ctx, Mutation, Resolver, UseMiddleware } from 'type-graphql';
 import { Logger } from '../../Configs';
 import { COOKIES_NAME } from '../../Constants';
 import { User } from '../../Entities';
@@ -19,6 +19,7 @@ import i18n from 'i18n';
 import SendGmail from '../../Utils/SendMail';
 import generateCode from '../../Utils/generateCode';
 import { TokenModel } from '../../Models/Token';
+import { Authentication } from '../../Middlewares/Auth.middleware';
 
 @Resolver()
 export default class AuthResolver {
@@ -251,6 +252,36 @@ export default class AuthResolver {
                 message: error.message,
                 success: false,
             };
+        }
+    }
+
+    @UseMiddleware(Authentication)
+    @Mutation((_return) => IMutationResponse)
+    async changeOldPassword(
+        @Arg('newPassword') newPassword: string,
+        @Arg('oldPassword') oldPassword: string,
+        @Ctx() { req }: Context
+    ): Promise<IMutationResponse>{
+        const user = await User.getMyUser(req);
+
+        const checkPassword = await argon2.verify(user.password, oldPassword)
+
+        if (!checkPassword) return {
+            code: 400,
+            success: false,
+            message: "FAIL"
+        }
+
+        await User.update({
+            id: user.id
+        }, {
+            password: await argon2.hash(newPassword)
+        })
+
+        return {
+            code: 200,
+            success: true,
+            message: "SUCCESS"
         }
     }
 }
