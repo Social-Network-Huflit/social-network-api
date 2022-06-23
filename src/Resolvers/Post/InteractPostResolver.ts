@@ -1,5 +1,14 @@
 import i18n from 'i18n';
-import { Arg, Ctx, ID, Mutation, Resolver, UseMiddleware } from 'type-graphql';
+import {
+    Arg,
+    Ctx,
+    ID,
+    Mutation,
+    Resolver,
+    UseMiddleware,
+    PubSub,
+    PubSubEngine,
+} from 'type-graphql';
 import { Logger } from '../../Configs';
 import {
     Post,
@@ -9,8 +18,10 @@ import {
     PostReplyComment,
     PostReplyCommentLike,
     User,
+    Notify,
 } from '../../Entities';
 import { Authentication } from '../../Middlewares/Auth.middleware';
+import { NEW_NOTI, ACTIONS } from '../../Constants/subscriptions.constant';
 import {
     CommentMutationResponse,
     Context,
@@ -32,9 +43,11 @@ export default class InteractPostResolver {
     async likePost(
         @Arg('post_id', () => ID) post_id: number,
         @Arg('like_type') like_type: 'like' | 'haha' | 'wow' | 'sad' | 'angry',
-        @Ctx() { req }: Context
+        @Ctx() { req }: Context,
+        @PubSub() pubSub: PubSubEngine
     ): Promise<PostMutationResponse> {
         try {
+            let notify: Notify | undefined = undefined;
             const owner = await User.getMyUser(req);
             const post = await Post.findOne({
                 id: post_id,
@@ -61,7 +74,15 @@ export default class InteractPostResolver {
                 });
 
                 await newLike.save();
-
+                const newNotify = Notify.create({
+                    action: ACTIONS.EXPRESS,
+                    message: `${owner.name} đã bày tỏ cảm xúc về bài viết của bạn`,
+                    to_id: post?.user_id,
+                    post_id: post.id,
+                    from_id: owner.id,
+                });
+                notify = await newNotify.save();
+                pubSub.publish(NEW_NOTI, notify);
                 return {
                     code: 200,
                     success: true,
@@ -87,10 +108,12 @@ export default class InteractPostResolver {
     @Mutation(() => CommentMutationResponse)
     async createCommentPost(
         @Arg('createCommentInput') createCommentInput: CreateCommentPostInput,
-        @Ctx() { req }: Context
+        @Ctx() { req }: Context,
+        @PubSub() pubSub: PubSubEngine
     ): Promise<CommentMutationResponse> {
         try {
             const validate = await ValidateInput(req, createCommentInput);
+            let notify: Notify | undefined = undefined;
 
             if (validate) return validate;
 
@@ -113,6 +136,15 @@ export default class InteractPostResolver {
                 post,
                 ...createCommentInput,
             });
+            const newNotify = Notify.create({
+                action: ACTIONS.COMMENT,
+                message: `${owner.name} đã bình luận về bài viết của bạn`,
+                to_id: post?.user_id,
+                post_id: post.id,
+                from_id: owner.id,
+            });
+            notify = await newNotify.save();
+            pubSub.publish(NEW_NOTI, notify);
 
             return {
                 code: 201,
@@ -294,9 +326,12 @@ export default class InteractPostResolver {
     async likeCommentPost(
         @Arg('comment_id', () => ID) comment_id: number,
         @Arg('like_type') like_type: 'like' | 'haha' | 'angry' | 'wow' | 'sad',
-        @Ctx() { req }: Context
+        @Ctx() { req }: Context,
+        @PubSub() pubSub: PubSubEngine
     ): Promise<PostMutationResponse> {
         try {
+            let notify: Notify | undefined = undefined;
+
             const owner = await User.getMyUser(req);
             const comment = await PostComment.findOne({
                 id: comment_id,
@@ -323,7 +358,15 @@ export default class InteractPostResolver {
                 });
 
                 await newLike.save();
-
+                const newNotify = Notify.create({
+                    action: ACTIONS.EXPRESS,
+                    message: `${owner.name} đã bày tỏ cảm xúc về bình luận của bạn`,
+                    to_id: comment?.user_id,
+                    post_id: comment.post_id,
+                    from_id: owner.id,
+                });
+                notify = await newNotify.save();
+                pubSub.publish(NEW_NOTI, notify);
                 return {
                     code: 200,
                     success: true,
@@ -349,9 +392,12 @@ export default class InteractPostResolver {
     @Mutation(() => ReplyCommentMutationResponse)
     async replyCommentPost(
         @Arg('replyCommentPostInput') replyCommentPostInput: ReplyCommentPostInput,
-        @Ctx() { req }: Context
+        @Ctx() { req }: Context,
+        @PubSub() pubSub: PubSubEngine
     ): Promise<ReplyCommentMutationResponse> {
         try {
+            let notify: Notify | undefined = undefined;
+
             const validate = await ValidateInput(req, replyCommentPostInput);
 
             if (validate) return validate;
@@ -375,7 +421,15 @@ export default class InteractPostResolver {
                 owner,
                 comment,
             });
-
+            const newNotify = Notify.create({
+                action: ACTIONS.COMMENT,
+                message: `${owner.name} đã trả lời bình luận của bạn`,
+                to_id: comment?.user_id,
+                post_id: comment.post_id,
+                from_id: owner.id,
+            });
+            notify = await newNotify.save();
+            pubSub.publish(NEW_NOTI, notify);
             return {
                 code: 201,
                 success: true,
@@ -394,9 +448,12 @@ export default class InteractPostResolver {
     async likeReplyCommentPost(
         @Arg('reply_comment_id', () => ID) reply_comment_id: number,
         @Arg('like_type') like_type: 'like' | 'haha' | 'angry' | 'wow' | 'sad',
-        @Ctx() { req }: Context
+        @Ctx() { req }: Context,
+        @PubSub() pubSub: PubSubEngine
     ): Promise<PostMutationResponse> {
         try {
+            let notify: Notify | undefined = undefined;
+
             const owner = await User.getMyUser(req);
             const reply_comment = await PostReplyComment.findOne({
                 id: reply_comment_id,
@@ -419,11 +476,19 @@ export default class InteractPostResolver {
                 const newLike = PostReplyCommentLike.create({
                     reply_comment,
                     owner,
-                    like_type
+                    like_type,
                 });
 
                 await newLike.save();
-
+                const newNotify = Notify.create({
+                    action: ACTIONS.EXPRESS,
+                    message: `${owner.name} đã bày tỏ cảm xúc về bình luận của bạn`,
+                    to_id: reply_comment?.user_id,
+                    post_id: reply_comment.comment.post_id,
+                    from_id: owner.id,
+                });
+                notify = await newNotify.save();
+                pubSub.publish(NEW_NOTI, notify);
                 return {
                     code: 200,
                     success: true,

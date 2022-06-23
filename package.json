@@ -4,7 +4,7 @@
     "main": "index.js",
     "scripts": {
         "start": "export NODE_ENV=production && node ./build/index.js",
-        "dev": "export NODE_ENV=development && nodemon ./src/index.ts",
+        "dev": "nodemon ./src/index.ts",
         "clean": "rm -rf node_modules && rm -rf build",
         "build": "rm -rf ./build && tsc"
     },

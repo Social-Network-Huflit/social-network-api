@@ -11,7 +11,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { PostLike, User, PostComment, PostShare, PostAsset, CollectionDetail } from '..';
+import { PostLike, User, PostComment, PostShare, PostAsset, CollectionDetail, Notify } from '..';
 
 @Entity({ name: 'post' })
 @ObjectType()
@@ -43,6 +43,10 @@ export default class Post extends BaseEntity {
     @Field(() => [PostComment])
     @OneToMany(() => PostComment, (post_comment) => post_comment.post)
     comments: PostComment[];
+
+    @Field(() => [Notify])
+    @OneToMany(() => Notify, (notify) => notify.post_id)
+    notify: Notify[];
 
     @Field(() => [PostShare])
     @OneToMany(() => PostShare, (post_share) => post_share.post)

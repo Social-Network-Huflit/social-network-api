@@ -2,3 +2,4 @@
 /build
 /.env
 /src/public
+src/Configs/Typeorm.ts

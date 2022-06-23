@@ -8,9 +8,11 @@ import {
     Resolver,
     Root,
     UseMiddleware,
+    PubSub,
+    PubSubEngine,
 } from 'type-graphql';
 import { Logger } from '../../Configs';
-import { Post, PostShare, PostShareComment, PostShareLike, User } from '../../Entities';
+import { Post, PostShare, PostShareComment, PostShareLike, User, Notify } from '../../Entities';
 import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     Context,
@@ -19,6 +21,8 @@ import {
     ServerInternal,
     UpdatePostShareInput,
 } from '../../Types';
+import { NEW_NOTI, ACTIONS } from '../../Constants/subscriptions.constant';
+
 import UpdateEntity from '../../Utils/UpdateEntity';
 import ValidateInput from '../../Utils/Validation';
 import i18n from 'i18n';
@@ -125,9 +129,12 @@ export default class PostShareResolver {
     @Mutation(() => PostShareMutationResponse)
     async createPostShare(
         @Arg('createPostInput') createPostInput: CreatePostShareInput,
-        @Ctx() { req }: Context
+        @Ctx() { req }: Context,
+        @PubSub() pubSub: PubSubEngine
     ): Promise<PostShareMutationResponse> {
         try {
+            let notify: Notify | undefined = undefined;
+
             const validate = await ValidateInput(req, createPostInput);
 
             if (validate) return validate;
@@ -150,7 +157,15 @@ export default class PostShareResolver {
                 ...createPostInput,
                 owner,
             });
-
+            const newNotify = Notify.create({
+                action: ACTIONS.SHARE,
+                message: `${owner.name} đã chia sẻ bài viết của bạn`,
+                to_id: post.user_id,
+                post_id: post.id,
+                from_id: owner.id,
+            });
+            notify = await newNotify.save();
+            pubSub.publish(NEW_NOTI, notify);
             return {
                 code: 200,
                 success: true,

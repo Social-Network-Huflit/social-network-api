@@ -6,6 +6,7 @@ import MessageResolver from './Chat/MessageResolver';
 import RoomResolver from './Chat/RoomResolver';
 import CollectionDetailResolver from './Collection/CollectionDetailResolver';
 import CollectionResolver from './Collection/CollectionResolver';
+import NotificationResolver from './Notification/NotifyResolver';
 import InteractPostResolver from './Post/InteractPostResolver';
 import PostCommentLikeResolver from './Post/PostCommentLikeResolver';
 import PostCommentResolver from './Post/PostCommentResolver';
@@ -44,7 +45,8 @@ const resolvers: NonEmptyArray<Function> = [
     UploadResolver,
     HistorySearchResolver,
     CollectionResolver,
-    CollectionDetailResolver
+    CollectionDetailResolver,
+    NotificationResolver,
 ];
 
 export default resolvers;

@@ -49,7 +49,7 @@ export default async function ApolloServerExpress() {
                             session: {
                                 userId: JSON.parse((session as any).session).userId,
                             },
-                            locale: request.headers["locale"],
+                            locale: request.headers['locale'],
                         },
                     },
                     schema,
@@ -79,7 +79,6 @@ export default async function ApolloServerExpress() {
                 },
             },
         ],
-        
     });
 
     await apolloServer.start();
