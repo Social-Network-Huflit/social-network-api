@@ -5,6 +5,7 @@ import {
     Mutation,
     PubSub,
     PubSubEngine,
+    Query,
     Resolver,
     ResolverFilterData,
     Root,
@@ -42,70 +43,91 @@ export default class NotificationResolver {
         return moment(notify.createdAt).fromNow();
     }
 
-    @Mutation(() => NotifyMutationResponse)
-    async sendNotify(
-        @Arg('createNotifyInput') createNotifyInput: CreateNotifyInput,
-        @Ctx() { req }: Context,
-        @PubSub() pubSub: PubSubEngine
-    ): Promise<NotifyMutationResponse> {
-        const { from_id, action, post_id } = createNotifyInput;
-        const { userId } = req.session;
-        const post = await Post.findOne(post_id);
-        if (post?.user_id === userId) {
-            return {
-                code: 400,
-                success: false,
-                message: 'Invalid sender',
-            };
-        }
-        if (userId !== from_id) {
-            return {
-                code: 400,
-                success: false,
-                message: 'Invalid sender',
-            };
-        }
-        try {
-            const sender = await User.findOne(from_id);
-            const receiver = await User.getMyUser(req);
-            if (!receiver) {
-                return {
-                    code: 400,
-                    success: false,
-                    message: 'Invalid receiver',
-                };
-            }
-            if (!sender) {
-                return {
-                    code: 400,
-                    success: false,
-                    message: 'Invalid sender',
-                };
-            }
-            var newNotify = Notify.create({
-                ...createNotifyInput,
-                message: `${sender.name} đã ${action} về bài viết của bạn`,
-                to_id: post?.user_id,
-            });
-            const result = await newNotify.save();
-            pubSub.publish(NEW_NOTI, result);
-            return {
-                code: 200,
-                success: true,
-                message: 'Send notify successfully',
-                result,
-            };
-        } catch (error: any) {
-            Logger.error(error);
-            throw new ServerInternal(error.message);
-        }
+    // @Mutation(() => NotifyMutationResponse)
+    // async sendNotify(
+    //     @Arg('createNotifyInput') createNotifyInput: CreateNotifyInput,
+    //     @Ctx() { req }: Context,
+    //     @PubSub() pubSub: PubSubEngine
+    // ): Promise<NotifyMutationResponse> {
+    //     const { from_id, action, post_id } = createNotifyInput;
+    //     const { userId } = req.session;
+    //     const post = await Post.findOne(post_id);
+    //     if (post?.user_id === userId) {
+    //         return {
+    //             code: 400,
+    //             success: false,
+    //             message: 'Invalid sender',
+    //         };
+    //     }
+    //     if (userId !== from_id) {
+    //         return {
+    //             code: 400,
+    //             success: false,
+    //             message: 'Invalid sender',
+    //         };
+    //     }
+    //     try {
+    //         const sender = await User.findOne(from_id);
+    //         const receiver = await User.getMyUser(req);
+    //         if (!receiver) {
+    //             return {
+    //                 code: 400,
+    //                 success: false,
+    //                 message: 'Invalid receiver',
+    //             };
+    //         }
+    //         if (!sender) {
+    //             return {
+    //                 code: 400,
+    //                 success: false,
+    //                 message: 'Invalid sender',
+    //             };
+    //         }
+    //         var newNotify = Notify.create({
+    //             ...createNotifyInput,
+    //             message: `${sender.name} đã ${action} về bài viết của bạn`,
+    //             to_id: post?.user_id,
+    //         });
+    //         const result = await newNotify.save();
+    //         pubSub.publish(NEW_NOTI, result);
+    //         return {
+    //             code: 200,
+    //             success: true,
+    //             message: 'Send notify successfully',
+    //             result,
+    //         };
+    //     } catch (error: any) {
+    //         Logger.error(error);
+    //         throw new ServerInternal(error.message);
+    //     }
+    // }
+
+    @Query(() => Boolean)
+    async initNotification(@PubSub() pubSub: PubSubEngine): Promise<boolean> {
+        pubSub.publish(NEW_NOTI, null);
+
+        return true;
     }
-    @Subscription({
+
+    @Subscription(() => [Notify], {
         topics: NEW_NOTI,
-        filter: ({ payload, context }: ResolverFilterData<Notify, any, Context>) =>
-            payload.to_id !== context.req.session.userId,
+
+        filter: ({ payload, context }: ResolverFilterData<Notify, any, Context>) => {
+            if (payload === null) {
+                return true;
+            }
+
+            return payload.to_id === context.req.session.userId;
+        },
     })
-    receiveNotify(@Root() notify: Notify): Notify {
-        return notify;
+    async receiveNotify(@Ctx() { req }: Context): Promise<Notify[]> {
+        const user = await User.getMyUser(req);
+
+        return await Notify.find({
+            where: { to_id: user.id },
+            order: {
+                createdAt: 'DESC',
+            },
+        });
     }
 }

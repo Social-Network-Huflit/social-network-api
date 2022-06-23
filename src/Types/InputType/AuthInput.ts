@@ -58,19 +58,19 @@ export class ChangePasswordInput {
 }
 
 @InputType()
-export class EditUserInput{
-    @Field({nullable: true})
+export class EditUserInput {
+    @Field({ nullable: true })
     name?: string;
 
-    @Field({nullable: true})
+    @Field({ nullable: true })
     username?: string;
-    
-    @Field({nullable: true})
+
+    @Field({ nullable: true })
     phoneNumber?: string;
 
-    @Field(() => GraphQLUpload, {nullable: true})
+    @Field(() => GraphQLUpload, { nullable: true })
     avatar_file?: Upload;
 
-    @Field(() => GraphQLUpload, {nullable: true})
+    @Field(() => GraphQLUpload, { nullable: true })
     background_file?: Upload;
 }

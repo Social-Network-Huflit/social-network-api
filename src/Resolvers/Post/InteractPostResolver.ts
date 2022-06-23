@@ -76,7 +76,7 @@ export default class InteractPostResolver {
                 await newLike.save();
                 const newNotify = Notify.create({
                     action: ACTIONS.EXPRESS,
-                    message: `${owner.name} đã bày tỏ cảm xúc về bài viết của bạn`,
+                    message: ` đã bày tỏ cảm xúc về bài viết của bạn`,
                     to_id: post?.user_id,
                     post_id: post.id,
                     from_id: owner.id,
@@ -138,7 +138,7 @@ export default class InteractPostResolver {
             });
             const newNotify = Notify.create({
                 action: ACTIONS.COMMENT,
-                message: `${owner.name} đã bình luận về bài viết của bạn`,
+                message: ` đã bình luận về bài viết của bạn`,
                 to_id: post?.user_id,
                 post_id: post.id,
                 from_id: owner.id,
@@ -360,7 +360,7 @@ export default class InteractPostResolver {
                 await newLike.save();
                 const newNotify = Notify.create({
                     action: ACTIONS.EXPRESS,
-                    message: `${owner.name} đã bày tỏ cảm xúc về bình luận của bạn`,
+                    message: ` đã bày tỏ cảm xúc về bình luận của bạn`,
                     to_id: comment?.user_id,
                     post_id: comment.post_id,
                     from_id: owner.id,
@@ -423,7 +423,7 @@ export default class InteractPostResolver {
             });
             const newNotify = Notify.create({
                 action: ACTIONS.COMMENT,
-                message: `${owner.name} đã trả lời bình luận của bạn`,
+                message: ` đã trả lời bình luận của bạn`,
                 to_id: comment?.user_id,
                 post_id: comment.post_id,
                 from_id: owner.id,
@@ -482,7 +482,7 @@ export default class InteractPostResolver {
                 await newLike.save();
                 const newNotify = Notify.create({
                     action: ACTIONS.EXPRESS,
-                    message: `${owner.name} đã bày tỏ cảm xúc về bình luận của bạn`,
+                    message: ` đã bày tỏ cảm xúc về bình luận của bạn`,
                     to_id: reply_comment?.user_id,
                     post_id: reply_comment.comment.post_id,
                     from_id: owner.id,

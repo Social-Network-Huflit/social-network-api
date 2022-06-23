@@ -13,7 +13,16 @@ import {
     UseMiddleware,
 } from 'type-graphql';
 import { Logger } from '../../Configs';
-import { Follow, Post, PostAsset, PostComment, PostLike, PostShare, User } from '../../Entities';
+import {
+    Follow,
+    Post,
+    PostAsset,
+    PostComment,
+    PostLike,
+    PostShare,
+    PostShareLike,
+    User,
+} from '../../Entities';
 import { Authentication } from '../../Middlewares/Auth.middleware';
 import {
     Context,
@@ -360,6 +369,40 @@ export default class PostResolver {
             if (postShare) {
                 result.push(...postShare);
             }
+        }
+
+        return result;
+    }
+
+    @UseMiddleware(Authentication)
+    @Query(() => [PostType])
+    async getPostLiked(@Ctx() { req }: Context): Promise<(Post | PostShare)[]> {
+        const result: (Post | PostShare)[] = [];
+
+        const user = await User.getMyUser(req);
+
+        const postLikes = await PostLike.find({
+            user_id: user.id,
+        });
+
+        for (let i = 0; i < postLikes.length; i++) {
+            const element = postLikes[i];
+
+            const post = await Post.findOne(element.post_id);
+
+            if (post) result.push(post);
+        }
+
+        const postShareLikes = await PostShareLike.find({
+            user_id: user.id,
+        });
+
+        for (let i = 0; i < postShareLikes.length; i++) {
+            const element = postShareLikes[i];
+
+            const postShare = await PostShare.findOne(element.post_share_id);
+
+            if (postShare) result.push(postShare);
         }
 
         return result;

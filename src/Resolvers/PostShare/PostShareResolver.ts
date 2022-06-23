@@ -159,7 +159,7 @@ export default class PostShareResolver {
             });
             const newNotify = Notify.create({
                 action: ACTIONS.SHARE,
-                message: `${owner.name} đã chia sẻ bài viết của bạn`,
+                message: ` đã chia sẻ bài viết của bạn`,
                 to_id: post.user_id,
                 post_id: post.id,
                 from_id: owner.id,
