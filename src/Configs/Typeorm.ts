@@ -4,7 +4,7 @@ import { entities } from '../Entities';
 
 export default async function connectTypeorm() {
     await createConnection({
-        type: 'postgres',
+        type: 'mysql',
         username: !__prod__ ? process.env.TYPEORM_USERNAME : undefined,
         password: !__prod__ ? process.env.TYPEORM_PASSWORD : undefined,
         database: !__prod__ ? process.env.TYPEORM_DATABASE : undefined,

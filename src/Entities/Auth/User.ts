@@ -29,6 +29,7 @@ import {
     PostShareReplyComment,
     PostShareReplyCommentLike,
     Room,
+    Notify,
 } from '..';
 import { DEFAULT_AVATAR } from '../../Constants';
 import { Request } from '../../Types';
@@ -147,8 +148,14 @@ export default class User extends BaseEntity {
     @OneToMany(() => Message, (message) => message.sender)
     sent_messages: Message[];
 
-    @OneToMany(() => Message, (message) => message.sender)
+    @OneToMany(() => Message, (message) => message.receiver)
     received_messages: Message[];
+
+    @OneToMany(() => Notify, (notify) => notify.sender)
+    sent_notify: Notify[];
+
+    @OneToMany(() => Notify, (notify) => notify.receiver)
+    received_notify: Notify[];
 
     @ManyToMany(() => Message, (message) => message.seen)
     @JoinTable({
@@ -173,7 +180,6 @@ export default class User extends BaseEntity {
 
     public static async getMyUser(req: Request): Promise<User> {
         let userId = req.session.userId;
-
 
         if (req.device?.type === 'phone') {
             const bearerToken = req.headers.authorization;

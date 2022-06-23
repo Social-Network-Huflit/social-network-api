@@ -87,6 +87,7 @@ export default async function ApolloServerExpress() {
                                 },
                                 locale: request.headers['locale'],
                             },
+                            locale: request.headers['locale'],
                         },
                         schema,
                     };

@@ -2,6 +2,7 @@ import {
     Collection,
     CollectionDetail,
     Message,
+    Notify,
     Post,
     PostComment,
     PostReplyComment,
@@ -49,7 +50,7 @@ function MutationResponse<T extends ClassType>(ModelClass: T, field: string) {
 }
 
 @ObjectType({
-    implements: IMutationResponse
+    implements: IMutationResponse,
 })
 export class UserMutationResponse extends MutationResponse(User, 'user') {
     @Field({ nullable: true })
@@ -57,17 +58,17 @@ export class UserMutationResponse extends MutationResponse(User, 'user') {
 }
 
 @ObjectType({
-    implements: IMutationResponse
+    implements: IMutationResponse,
 })
 export class PostMutationResponse extends MutationResponse(Post, 'post') {}
 
 @ObjectType({
-    implements: IMutationResponse
+    implements: IMutationResponse,
 })
 export class CommentMutationResponse extends MutationResponse(PostComment, 'comment') {}
 
 @ObjectType({
-    implements: IMutationResponse
+    implements: IMutationResponse,
 })
 export class ReplyCommentMutationResponse extends MutationResponse(
     PostReplyComment,
@@ -75,12 +76,12 @@ export class ReplyCommentMutationResponse extends MutationResponse(
 ) {}
 
 @ObjectType({
-    implements: IMutationResponse
+    implements: IMutationResponse,
 })
 export class PostShareMutationResponse extends MutationResponse(PostShare, 'post') {}
 
 @ObjectType({
-    implements: IMutationResponse
+    implements: IMutationResponse,
 })
 export class CommentPostShareMutationResponse extends MutationResponse(
     PostShareComment,
@@ -88,7 +89,7 @@ export class CommentPostShareMutationResponse extends MutationResponse(
 ) {}
 
 @ObjectType({
-    implements: IMutationResponse
+    implements: IMutationResponse,
 })
 export class ReplyCommentPostShareMutationResponse extends MutationResponse(
     PostReplyComment,
@@ -96,16 +97,24 @@ export class ReplyCommentPostShareMutationResponse extends MutationResponse(
 ) {}
 
 @ObjectType({
-    implements: IMutationResponse
+    implements: IMutationResponse,
 })
 export class MessageMutationResponse extends MutationResponse(Message, 'chat_message') {}
 
 @ObjectType({
-    implements: IMutationResponse
+    implements: IMutationResponse,
+})
+export class NotifyMutationResponse extends MutationResponse(Notify, 'notification') {}
+
+@ObjectType({
+    implements: IMutationResponse,
 })
 export class CollectionMutationResponse extends MutationResponse(Collection, 'collection') {}
 
 @ObjectType({
-    implements: IMutationResponse
+    implements: IMutationResponse,
 })
-export class CollectionDetailMutationResponse extends MutationResponse(CollectionDetail, 'detail') {}
+export class CollectionDetailMutationResponse extends MutationResponse(
+    CollectionDetail,
+    'detail'
+) {}

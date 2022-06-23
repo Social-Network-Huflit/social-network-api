@@ -22,6 +22,7 @@ import HistorySearch from './Auth/HistorySearch';
 import PostAsset from './Post/PostAsset';
 import Collection from './Collection/Collection';
 import CollectionDetail from './Collection/CollectionDetail';
+import Notify from './Notify/Notify';
 
 export { default as User } from './Auth/User';
 export { default as Follow } from './Auth/Follow';
@@ -48,6 +49,9 @@ export { default as PostShareReplyCommentLike } from './PostShare/PostShareReply
 export { default as Message } from './Chat/Message';
 export { default as Room } from './Chat/Room';
 
+//Notify
+export { default as Notify } from './Notify/Notify';
+
 //Collection
 export { default as Collection } from './Collection/Collection';
 export { default as CollectionDetail } from './Collection/CollectionDetail';
@@ -72,5 +76,6 @@ export const entities = [
     HistorySearch,
     PostAsset,
     Collection,
-    CollectionDetail
+    CollectionDetail,
+    Notify,
 ];
